@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx:*)",
+      "Bash(yes:*)",
+      "Bash(cp:*)",
+      "Bash(cd:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run:*)",
+      "Bash(ls:*)",
+      "Bash(sleep:*)",
+      "Bash(supabase:*)",
+      "Bash(curl:*)",
+      "Bash(for f:*)",
+      "Bash(taskkill:*)",
+      "Bash(cmd /c \"netstat -ano | findstr :3000\")",
+      "Bash(cmd /c \"netstat -ano | findstr :300\" && cmd /c \"tasklist | findstr node\")",
+      "Bash(cmd /c \"del /f C:\\\\klario\\\\.next\\\\dev\\\\lock\" 2>&1)",
+      "Bash(cmd /c \"tasklist /FI \\\\\"PID eq 28404\\\\\"\")",
+      "Bash(cmd /c \"taskkill /IM node.exe /F\" 2>&1)",
+      "Bash(cmd /c \"del /f C:\\\\klario\\\\.next\\\\dev\\\\lock\" 2>&1 && sleep 1 && npm run dev)",
+      "Bash(cmd /c \"dir C:\\\\klario\\\\.next\\\\dev\\\\\")",
+      "Bash(cmd /c \"taskkill /PID 28404 /F 2>nul & taskkill /IM node.exe /F 2>nul & echo done\")",
+      "Bash(cmd /c \"wmic process where ProcessId=28404 get Name,CommandLine,ProcessId 2>nul\")",
+      "Bash(cmd /c \"netstat -ano | findstr 3000\")",
+      "Bash(cmd /c \"taskkill /IM node.exe /F 2>nul & echo killed\")",
+      "Bash(cmd /c \"netstat -ano\" | grep \":3000\")",
+      "Bash(cmd /c \"netstat -ano\" | grep \"300\")",
+      "Bash(cmd /c \"tasklist /FI \\\\\"IMAGENAME eq node.exe\\\\\"\")",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue | Select-Object LocalAddress,LocalPort,OwningProcess\")",
+      "Bash(powershell -Command \"Stop-Process -Id 28404 -Force -ErrorAction SilentlyContinue; Get-Process -Id 28404 -ErrorAction SilentlyContinue | Select-Object Name,Id\")",
+      "Bash(powershell -Command \"Stop-Process -Id 28404 -Force\" && sleep 2 && rm -f /c/klario/.next/dev/lock && npm run dev -- -p 3000 2>&1)",
+      "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue\")",
+      "Bash(git init:*)"
+    ]
+  }
+}
