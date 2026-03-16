@@ -31,7 +31,10 @@
       "Bash(powershell -Command \"Stop-Process -Id 28404 -Force -ErrorAction SilentlyContinue; Get-Process -Id 28404 -ErrorAction SilentlyContinue | Select-Object Name,Id\")",
       "Bash(powershell -Command \"Stop-Process -Id 28404 -Force\" && sleep 2 && rm -f /c/klario/.next/dev/lock && npm run dev -- -p 3000 2>&1)",
       "Bash(powershell -Command \"Get-NetTCPConnection -LocalPort 3000 -ErrorAction SilentlyContinue\")",
-      "Bash(git init:*)"
+      "Bash(git init:*)",
+      "Bash(git commit:*)",
+      "Bash(git config:*)",
+      "Bash(git add:*)"
     ]
   }
 }
