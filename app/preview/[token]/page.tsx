@@ -1,13 +1,13 @@
-import { createClient } from '@/lib/supabase/server';
+import { createAnonClient } from '@/lib/supabase/anon';
 import { notFound } from 'next/navigation';
 import { BlockRenderer } from '@/components/builder/BlockRenderer';
 import type { Site } from '@/lib/types';
 import { isLinkExpired } from '@/lib/utils';
-import { Eye, Clock, AlertTriangle } from 'lucide-react';
+import { Eye, AlertTriangle } from 'lucide-react';
 
 export default async function PreviewPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
-  const supabase = await createClient();
+  const supabase = createAnonClient();
 
   // Fetch demo link
   const { data: link } = await supabase
