@@ -50,7 +50,8 @@
       "Bash(/c/klario/gh-cli/bin/gh.exe repo:*)",
       "Bash(printf:*)",
       "WebFetch(domain:klario-alpha.vercel.app)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(node:*)"
     ]
   }
 }
