@@ -1,7 +1,7 @@
 'use client';
 
 import * as React from 'react';
-import type { SiteBlock, BlockType, HeroContent, FeaturesContent, StatsContent, TestimonialsContent, PricingContent, ContactContent, FooterContent } from '@/lib/types';
+import type { SiteBlock, BlockType, HeroContent, FeaturesContent, StatsContent, TestimonialsContent, PricingContent, ContactContent, FooterContent, GalleryContent, AboutContent } from '@/lib/types';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
@@ -41,6 +41,10 @@ export function BlockEditor({ block, onChange }: BlockEditorProps) {
       return <ContactEditor content={block.content as ContactContent} update={update} />;
     case 'footer':
       return <FooterEditor content={block.content as FooterContent} update={update} />;
+    case 'about':
+      return <AboutEditor content={block.content as AboutContent} update={update} />;
+    case 'gallery':
+      return <GalleryEditor content={block.content as GalleryContent} update={update} />;
     default:
       return <p className="text-sm text-gray-400">No editor for this block type.</p>;
   }
@@ -281,6 +285,26 @@ function FooterEditor({ content, update }: { content: FooterContent; update: (p:
       <Input label="Nom de l'entreprise" value={content.companyName} onChange={e => update('companyName', e.target.value)} />
       <Input label="Slogan" value={content.tagline || ''} onChange={e => update('tagline', e.target.value)} />
       <Input label="Copyright" value={content.copyright || ''} onChange={e => update('copyright', e.target.value)} />
+    </div>
+  );
+}
+
+function AboutEditor({ content, update }: { content: AboutContent; update: (p: string, v: unknown) => void }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <Input label="Titre" value={content.headline} onChange={e => update('headline', e.target.value)} />
+      <Textarea label="Texte" value={content.text} onChange={e => update('text', e.target.value)} className="min-h-[120px]" />
+      <Input label="URL de l'image (optionnel)" value={content.imageUrl || ''} onChange={e => update('imageUrl', e.target.value)} placeholder="https://..." />
+    </div>
+  );
+}
+
+function GalleryEditor({ content, update }: { content: GalleryContent; update: (p: string, v: unknown) => void }) {
+  return (
+    <div className="flex flex-col gap-4">
+      <Input label="Titre (optionnel)" value={content.headline || ''} onChange={e => update('headline', e.target.value)} />
+      <Input label="Sous-titre (optionnel)" value={content.subheadline || ''} onChange={e => update('subheadline', e.target.value)} />
+      <p className="text-xs text-gray-400">{content.photos?.length ?? 0} photo(s) dans la galerie.</p>
     </div>
   );
 }

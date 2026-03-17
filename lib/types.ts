@@ -7,7 +7,9 @@ export type BlockType =
   | 'testimonials'
   | 'pricing'
   | 'contact'
-  | 'footer';
+  | 'footer'
+  | 'gallery'
+  | 'about';
 
 export type SiteTemplate = 'saas' | 'restaurant' | 'agency';
 export type SiteStatus = 'draft' | 'demo_sent' | 'published';
@@ -19,6 +21,7 @@ export interface HeroContent {
   ctaSecondaryText?: string;
   badge?: string;
   bgGradient?: string;
+  whatsapp?: string;
   variant?: 'centered' | 'split' | 'minimal';
 }
 
@@ -34,6 +37,21 @@ export interface FeaturesContent {
   features: Feature[];
   columns?: 2 | 3 | 4;
   variant?: 'grid' | 'list';
+}
+
+export interface AboutContent {
+  headline: string;
+  text: string;
+  imageUrl?: string;
+  highlights?: Array<{ icon: string; label: string }>;
+  variant?: 'split' | 'centered';
+}
+
+export interface GalleryContent {
+  headline?: string;
+  subheadline?: string;
+  photos: string[];
+  columns?: 2 | 3 | 4;
 }
 
 export interface Testimonial {
@@ -75,6 +93,8 @@ export interface ContactContent {
   email?: string;
   phone?: string;
   address?: string;
+  whatsapp?: string;
+  mapsUrl?: string;
   showForm?: boolean;
   variant?: 'split' | 'centered';
 }
@@ -89,10 +109,10 @@ export interface FooterContent {
 }
 
 export interface StatItem {
-  value: string;       // e.g. "10000", "99.9", "500"
-  suffix?: string;     // e.g. "+", "%", "K"
+  value: string;
+  suffix?: string;
   label: string;
-  prefix?: string;     // e.g. "$"
+  prefix?: string;
 }
 
 export interface StatsContent {
@@ -109,7 +129,9 @@ export type BlockContent =
   | TestimonialsContent
   | PricingContent
   | ContactContent
-  | FooterContent;
+  | FooterContent
+  | GalleryContent
+  | AboutContent;
 
 export interface SiteBlock {
   id: string;
@@ -175,7 +197,7 @@ export interface DemoLinkRow {
 // ─── Template Defaults ───────────────────────────────────────────────────────
 
 export const DEFAULT_THEME: SiteTheme = {
-  primaryColor: '#7c3aed',
+  primaryColor: '#e85d26',
   fontFamily: 'Inter, system-ui, sans-serif',
   borderRadius: 'md',
   darkMode: true,

@@ -11,11 +11,13 @@ interface BlockDefinition {
 
 const BLOCK_DEFINITIONS: BlockDefinition[] = [
   { type: 'hero', label: 'Hero', description: 'Bannière animée avec titre et boutons', icon: '🚀' },
-  { type: 'features', label: 'Fonctionnalités', description: 'Grille de fonctionnalités avec icônes', icon: '✨' },
+  { type: 'about', label: 'À propos', description: 'Section histoire et valeurs de l\'entreprise', icon: '🏠' },
+  { type: 'features', label: 'Services', description: 'Grille de services / fonctionnalités', icon: '✨' },
+  { type: 'gallery', label: 'Galerie', description: 'Grille photos avec lightbox', icon: '🖼️' },
   { type: 'stats', label: 'Statistiques', description: 'Compteurs animés', icon: '📊' },
   { type: 'testimonials', label: 'Avis clients', description: 'Carrousel d\'avis automatique', icon: '💬' },
-  { type: 'pricing', label: 'Tarifs', description: 'Offres et comparaison de prix', icon: '💰' },
-  { type: 'contact', label: 'Contact', description: 'Formulaire de contact et coordonnées', icon: '📬' },
+  { type: 'pricing', label: 'Tarifs / Menu', description: 'Offres, formules ou menu', icon: '💰' },
+  { type: 'contact', label: 'Contact', description: 'Formulaire, WhatsApp, Maps', icon: '📬' },
   { type: 'footer', label: 'Pied de page', description: 'Pied de page avec liens et copyright', icon: '📄' },
 ];
 

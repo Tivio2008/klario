@@ -23,13 +23,15 @@ import { Star } from 'lucide-react';
 
 // Default content for each block type
 const DEFAULT_BLOCK_CONTENT: Record<BlockType, object> = {
-  hero: { headline: 'Your Headline Here', subheadline: 'Add your compelling subheadline.', ctaText: 'Get Started', badge: '', bgGradient: 'purple-blue', variant: 'centered' },
-  features: { headline: 'Our Features', subheadline: '', features: [{ icon: '✨', title: 'Feature 1', description: 'Describe this feature.' }], columns: 3, variant: 'grid' },
-  stats: { headline: 'By the Numbers', stats: [{ value: '10000', suffix: '+', label: 'Happy Customers' }, { value: '99.9', suffix: '%', label: 'Uptime' }, { value: '500', suffix: '+', label: 'Projects Delivered' }, { value: '50', prefix: '$', suffix: 'M+', label: 'Revenue Generated' }] },
-  testimonials: { headline: 'What Customers Say', testimonials: [{ name: 'Jane Doe', role: 'CEO', company: 'ACME', quote: 'Amazing product!', rating: 5 }], variant: 'cards' },
-  pricing: { headline: 'Simple Pricing', tiers: [{ name: 'Starter', price: '$0', description: 'Get started.', features: ['Feature 1', 'Feature 2'], ctaText: 'Get Started' }], variant: 'cards' },
-  contact: { headline: 'Contact Us', subheadline: 'We\'d love to hear from you.', showForm: true, variant: 'split' },
-  footer: { companyName: 'My Company', tagline: 'Building great things.', copyright: `© ${new Date().getFullYear()} All rights reserved.`, variant: 'minimal' },
+  hero: { headline: 'Votre Titre Ici', subheadline: 'Décrivez votre offre en une phrase.', ctaText: 'Nous contacter', badge: '', variant: 'centered' },
+  features: { headline: 'Nos services', subheadline: '', features: [{ icon: '✨', title: 'Service 1', description: 'Décrivez ce service.' }], columns: 3, variant: 'grid' },
+  about: { headline: 'Notre histoire', text: 'Parlez de votre entreprise, vos valeurs, ce qui vous rend unique.', variant: 'centered' },
+  gallery: { headline: 'Galerie', subheadline: '', photos: [], columns: 3 },
+  stats: { headline: null, stats: [{ value: '10', suffix: '+', label: 'Années d\'expérience' }, { value: '99', suffix: '%', label: 'Clients satisfaits' }, { value: '500', suffix: '+', label: 'Projets réalisés' }, { value: '4.9', suffix: '★', label: 'Note moyenne' }] },
+  testimonials: { headline: 'Ce que disent nos clients', testimonials: [{ name: 'Marie D.', role: 'Cliente', company: 'Ville', quote: 'Excellent service !', rating: 5 }], variant: 'cards' },
+  pricing: { headline: 'Nos offres', tiers: [{ name: 'Essentiel', price: 'Sur devis', description: 'Pour démarrer.', features: ['Service 1', 'Service 2'], ctaText: 'Demander un devis' }], variant: 'cards' },
+  contact: { headline: 'Nous contacter', subheadline: 'On vous répond rapidement.', showForm: true, variant: 'split' },
+  footer: { companyName: 'Mon entreprise', tagline: 'Votre slogan ici.', copyright: `© ${new Date().getFullYear()} Tous droits réservés.`, variant: 'minimal' },
 };
 
 const STATUS_OPTIONS: { value: SiteStatus; label: string }[] = [

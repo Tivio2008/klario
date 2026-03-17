@@ -117,3 +117,23 @@ create index sites_user_id_idx on public.sites(user_id);
 create index sites_slug_idx on public.sites(slug);
 create index demo_links_site_id_idx on public.demo_links(site_id);
 create index demo_links_token_idx on public.demo_links(token);
+
+-- ─── Storage: site-media bucket ───────────────────────────────
+-- Run this AFTER creating the bucket in Supabase dashboard (Storage > New bucket > "site-media", Public: ON)
+-- OR run the insert below to create it via SQL:
+
+insert into storage.buckets (id, name, public)
+values ('site-media', 'site-media', true)
+on conflict (id) do nothing;
+
+create policy "Public can read site-media"
+  on storage.objects for select
+  using (bucket_id = 'site-media');
+
+create policy "Authenticated users can upload to site-media"
+  on storage.objects for insert to authenticated
+  with check (bucket_id = 'site-media');
+
+create policy "Users can delete own files in site-media"
+  on storage.objects for delete to authenticated
+  using (bucket_id = 'site-media' and auth.uid()::text = (storage.foldername(name))[1]);
