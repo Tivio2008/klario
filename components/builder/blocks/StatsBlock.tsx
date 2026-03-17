@@ -2,14 +2,20 @@
 
 import { motion, useInView } from 'framer-motion';
 import { useRef, useEffect, useState } from 'react';
-import type { StatsContent, StatItem } from '@/lib/types';
+import type { StatsContent, StatItem, SiteTheme } from '@/lib/types';
 
 interface StatsBlockProps {
   content: StatsContent;
+  theme?: SiteTheme;
   isPreview?: boolean;
 }
 
-function AnimatedStat({ item, trigger, isPreview }: { item: StatItem; trigger: boolean; isPreview?: boolean }) {
+function hexToRgb(hex: string): string {
+  const clean = hex.replace('#', '');
+  return `${parseInt(clean.slice(0,2),16)}, ${parseInt(clean.slice(2,4),16)}, ${parseInt(clean.slice(4,6),16)}`;
+}
+
+function AnimatedStat({ item, trigger, isPreview, primary }: { item: StatItem; trigger: boolean; isPreview?: boolean; primary: string }) {
   const numericTarget = parseFloat(item.value.replace(/[^0-9.]/g, '')) || 0;
   const isDecimal = item.value.includes('.');
   const [count, setCount] = useState(isPreview ? numericTarget : 0);
@@ -21,9 +27,7 @@ function AnimatedStat({ item, trigger, isPreview }: { item: StatItem; trigger: b
     startedRef.current = true;
     const duration = 1800;
     const startTime = performance.now();
-
     function easeOut(t: number) { return 1 - Math.pow(1 - t, 3); }
-
     function frame(now: number) {
       const progress = Math.min((now - startTime) / duration, 1);
       const val = easeOut(progress) * numericTarget;
@@ -39,25 +43,29 @@ function AnimatedStat({ item, trigger, isPreview }: { item: StatItem; trigger: b
   return (
     <div className="text-center">
       <div className="text-5xl md:text-6xl font-bold text-white mb-2 tabular-nums">
-        {item.prefix && <span className="text-purple-400">{item.prefix}</span>}
+        {item.prefix && <span style={{ color: primary }}>{item.prefix}</span>}
         {display}
-        {item.suffix && <span className="text-purple-400">{item.suffix}</span>}
+        {item.suffix && <span style={{ color: primary }}>{item.suffix}</span>}
       </div>
       <div className="text-gray-400 text-sm font-medium uppercase tracking-wider">{item.label}</div>
     </div>
   );
 }
 
-export function StatsBlock({ content, isPreview }: StatsBlockProps) {
+export function StatsBlock({ content, theme, isPreview }: StatsBlockProps) {
   const ref = useRef<HTMLElement>(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
+  const primary = theme?.primaryColor ?? '#c41e3a';
+  const rgb = hexToRgb(primary);
 
   return (
     <section ref={ref} className="py-20 px-6 relative overflow-hidden"
       style={{ background: 'linear-gradient(135deg, #0d0d1a 0%, #0a0a14 100%)' }}>
-      {/* decorative glow */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 bg-purple-600/15 blur-3xl rounded-full" />
+        <div
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-40 blur-3xl rounded-full opacity-20"
+          style={{ backgroundColor: `rgba(${rgb}, 0.6)` }}
+        />
       </div>
 
       <div className="max-w-5xl mx-auto relative z-10">
@@ -67,7 +75,7 @@ export function StatsBlock({ content, isPreview }: StatsBlockProps) {
             animate={inView ? { opacity: 1, y: 0 } : {}}
             className="text-center mb-14"
           >
-            {content.headline && <h2 className="text-4xl font-bold gradient-text mb-3">{content.headline}</h2>}
+            {content.headline && <h2 className="text-4xl font-bold text-white mb-3">{content.headline}</h2>}
             {content.subheadline && <p className="text-gray-400">{content.subheadline}</p>}
           </motion.div>
         )}
@@ -83,7 +91,7 @@ export function StatsBlock({ content, isPreview }: StatsBlockProps) {
               animate={inView ? { opacity: 1, y: 0 } : {}}
               transition={{ delay: i * 0.12, duration: 0.6, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
             >
-              <AnimatedStat item={stat} trigger={inView} isPreview={isPreview} />
+              <AnimatedStat item={stat} trigger={inView} isPreview={isPreview} primary={primary} />
             </motion.div>
           ))}
         </div>

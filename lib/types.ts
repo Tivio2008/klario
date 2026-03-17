@@ -21,12 +21,14 @@ export interface HeroContent {
   ctaSecondaryText?: string;
   badge?: string;
   bgGradient?: string;
+  backgroundImageUrl?: string;
   whatsapp?: string;
   variant?: 'centered' | 'split' | 'minimal';
 }
 
 export interface Feature {
-  icon: string;
+  icon?: string;
+  iconName?: string;
   title: string;
   description: string;
 }

@@ -16,6 +16,39 @@ export interface GeneratedSite {
   suggestedName: string;
 }
 
+// Curated Unsplash photo IDs by business category
+const BACKGROUNDS: Record<string, string> = {
+  restaurant:   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=60&auto=format&fit=crop',
+  pizza:        'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1920&q=60&auto=format&fit=crop',
+  italian:      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=60&auto=format&fit=crop',
+  french:       'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=60&auto=format&fit=crop',
+  cafe:         'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1920&q=60&auto=format&fit=crop',
+  coffee:       'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1920&q=60&auto=format&fit=crop',
+  bakery:       'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1920&q=60&auto=format&fit=crop',
+  sushi:        'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1920&q=60&auto=format&fit=crop',
+  burger:       'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1920&q=60&auto=format&fit=crop',
+  bar:          'https://images.unsplash.com/photo-1525268771113-32d9e9021a97?w=1920&q=60&auto=format&fit=crop',
+  wine:         'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1920&q=60&auto=format&fit=crop',
+  hair:         'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1920&q=60&auto=format&fit=crop',
+  beauty:       'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1920&q=60&auto=format&fit=crop',
+  spa:          'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1920&q=60&auto=format&fit=crop',
+  fitness:      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=60&auto=format&fit=crop',
+  medical:      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&q=60&auto=format&fit=crop',
+  dental:       'https://images.unsplash.com/photo-1588776814546-1ffbb9f03470?w=1920&q=60&auto=format&fit=crop',
+  hotel:        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=60&auto=format&fit=crop',
+  construction: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=60&auto=format&fit=crop',
+  real_estate:  'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1920&q=60&auto=format&fit=crop',
+  garden:       'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=60&auto=format&fit=crop',
+  law:          'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=60&auto=format&fit=crop',
+  agency:       'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=60&auto=format&fit=crop',
+  tech:         'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=60&auto=format&fit=crop',
+  education:    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1920&q=60&auto=format&fit=crop',
+  photography:  'https://images.unsplash.com/photo-1452457750107-be127b9f3f0f?w=1920&q=60&auto=format&fit=crop',
+  default:      'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=60&auto=format&fit=crop',
+};
+
+const ICON_NAMES = 'utensils, coffee, wine, chef, salad, fire, leaf, flower, scissors, sparkles, heart, shield, zap, globe, briefcase, building, users, calendar, clock, pin, star, truck, wrench, phone, mail, camera, music, book, award, chart, layers, code, home, package, target';
+
 export async function POST(req: NextRequest) {
   try {
     const data: OnboardingData = await req.json();
@@ -24,122 +57,116 @@ export async function POST(req: NextRequest) {
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `You are a world-class web designer and copywriter who creates truly unique, hand-crafted websites. Each site you create looks completely different based on the business type, personality, and brand.
+    const systemPrompt = `You are creating website content for real local businesses. Your writing should sound like it was written by someone who actually knows the business — warm, specific, direct. No corporate language.
 
-CRITICAL RULES:
-- NEVER use purple or violet colors unless the business explicitly mentions them
-- Extract the EXACT brand colors from the description (e.g. "rouge et vert" → use red and green)
-- If no color mentioned: restaurants → warm amber/orange/red, agencies → teal/indigo, health → green, tech → blue, beauty → rose/gold
-- Write ALL content in the same language as the business description
-- Make it feel hand-crafted and unique, NOT generic AI-generated
-- For restaurants: use warm, food-focused language; no "pricing tiers", instead use menu highlights
-- For agencies: use bold, results-focused language; include pricing packages
-- WhatsApp number: extract from description if mentioned, otherwise null`;
+STRICT RULES:
+- NEVER use purple, violet, or indigo colors. Extract colors from the description. If none mentioned: restaurants → warm red/amber, salons → rose/gold, tech → deep blue/slate, nature → forest green.
+- NO emojis anywhere in the output
+- NO marketing clichés: never write "solution innovante", "passion", "excellence", "dédié à", "nous sommes fiers de", "de qualité", "sur mesure" (unless quoting), "unique en son genre", "au cœur de"
+- Content must sound human: short sentences, specific details, real-sounding
+- Write in the same language as the business description`;
 
-    const userPrompt = `Create a complete website for this business:
-
+    const userPrompt = `Business description:
 ---
 ${data.prompt}
 ---
-${hasReviews ? `\nREAL CUSTOMER REVIEWS (use these as testimonials, keep real quotes):\n${data.reviews}\n` : ''}
+${hasReviews ? `\nReal customer reviews to use as testimonials:\n${data.reviews}\n` : ''}
 
-Generate a JSON object (raw JSON only, no markdown) with this exact structure:
+Generate a JSON object (raw JSON only, no markdown, no explanation):
 
 {
-  "suggestedName": "exact business name from description",
+  "suggestedName": "exact business name",
   "meta": {
-    "primaryColor": "#hexcolor (extracted from description or inferred from business type — NEVER purple/violet unless explicitly stated)",
-    "secondaryColor": "#hexcolor (complementary accent)",
+    "primaryColor": "#hexcolor — extract from description, NEVER purple/violet/indigo",
     "tone": "luxury|professional|fun|minimal",
     "template": "restaurant|agency|saas",
-    "fontFamily": "Georgia, serif (for luxury/restaurant) OR Inter, system-ui, sans-serif (for modern/tech)",
-    "whatsapp": "phone number digits only or null"
+    "fontFamily": "Georgia, serif OR Inter, system-ui, sans-serif",
+    "whatsapp": "digits only or null",
+    "backgroundCategory": "pick ONE key from this exact list: restaurant, pizza, italian, french, cafe, coffee, bakery, sushi, burger, bar, wine, hair, beauty, spa, fitness, medical, dental, hotel, construction, real_estate, garden, law, agency, tech, education, photography, default"
   },
   "hero": {
-    "headline": "striking headline using the actual business name, max 8 words",
-    "subheadline": "2 sentences — what makes this business special, who it's for",
-    "ctaText": "specific action button (e.g. 'Réserver une table', 'Demander un devis', 'Découvrir nos offres')",
-    "ctaSecondaryText": "secondary action or null",
-    "badge": "short badge (e.g. 'Ouvert depuis 2008', 'Famille depuis 3 générations') or null"
+    "headline": "max 7 words — business name + what they do, direct and specific",
+    "subheadline": "2 short sentences. What you get here. Who it's for. No adjectives like 'amazing' or 'exceptional'.",
+    "ctaText": "specific verb + action (e.g. 'Réserver une table', 'Voir le menu', 'Nous appeler')",
+    "ctaSecondaryText": "second action or null",
+    "badge": "one concrete fact (e.g. 'Ouvert depuis 2008', 'Livraison 7j/7') or null"
   },
   "about": {
-    "headline": "about section headline (e.g. 'Notre histoire', 'Qui sommes-nous ?')",
-    "text": "2-3 paragraphs about the business history, values, and what makes them unique. Very specific to this business.",
+    "headline": "short section title (e.g. 'Notre histoire', 'L\\'équipe', 'Depuis 2010')",
+    "text": "3 short paragraphs, conversational tone. Real details from the description. No generic filler.",
     "highlights": [
-      {"icon": "emoji", "label": "key fact or value"},
-      {"icon": "emoji", "label": "key fact or value"},
-      {"icon": "emoji", "label": "key fact or value"},
-      {"icon": "emoji", "label": "key fact or value"}
+      {"iconName": "one of: ${ICON_NAMES}", "label": "concrete fact, 3-5 words"},
+      {"iconName": "...", "label": "..."},
+      {"iconName": "...", "label": "..."},
+      {"iconName": "...", "label": "..."}
     ],
     "imageUrl": ${data.logoUrl ? `"${data.logoUrl}"` : 'null'},
     "variant": "split"
   },
   "features": {
-    "headline": "services/features headline (e.g. 'Nos spécialités', 'Nos services', 'Ce qu\\'on fait')",
-    "subheadline": "one sentence",
+    "headline": "section title (e.g. 'Nos spécialités', 'Ce qu\\'on fait', 'Nos services')",
+    "subheadline": "one plain sentence, no marketing",
     "features": [
-      {"icon": "emoji", "title": "specific service/dish/offer", "description": "2 specific sentences about this"},
-      {"icon": "emoji", "title": "...", "description": "..."},
-      {"icon": "emoji", "title": "...", "description": "..."},
-      {"icon": "emoji", "title": "...", "description": "..."},
-      {"icon": "emoji", "title": "...", "description": "..."},
-      {"icon": "emoji", "title": "...", "description": "..."}
+      {"iconName": "one of: ${ICON_NAMES}", "title": "specific item name", "description": "2 sentences, concrete, no adjectives like 'délicieux' or 'exceptionnel'"},
+      {"iconName": "...", "title": "...", "description": "..."},
+      {"iconName": "...", "title": "...", "description": "..."},
+      {"iconName": "...", "title": "...", "description": "..."},
+      {"iconName": "...", "title": "...", "description": "..."},
+      {"iconName": "...", "title": "...", "description": "..."}
     ],
     "columns": 3
   },
   "stats": {
     "headline": null,
     "stats": [
-      {"value": "realistic number from description or inferred", "suffix": "+", "label": "relevant label"},
-      {"value": "number", "suffix": "%", "label": "satisfaction or quality metric"},
-      {"value": "number", "suffix": "+", "label": "another metric"},
-      {"value": "4.9", "suffix": "★", "label": "Note moyenne"}
+      {"value": "realistic number", "suffix": "+", "label": "short label"},
+      {"value": "number", "suffix": "%", "label": "short label"},
+      {"value": "number", "suffix": "+", "label": "short label"},
+      {"value": "4.8", "suffix": "★", "label": "Avis clients"}
     ]
   },
   "testimonials": {
-    "headline": "testimonials headline",
-    "subheadline": "one sentence",
+    "headline": "section title",
+    "subheadline": null,
     "testimonials": [
-      {"name": "real or believable name", "role": "Client", "company": "city or context", "quote": "${hasReviews ? 'exact real review quote' : 'very specific 2-sentence testimonial about this exact business'}", "rating": 5},
+      {"name": "realistic name", "role": "Client", "company": "city or context", "quote": "${hasReviews ? 'verbatim from real reviews' : '1-2 sentences, specific detail about what they liked, no hyperbole'}", "rating": 5},
       {"name": "...", "role": "Client", "company": "...", "quote": "...", "rating": 5},
       {"name": "...", "role": "Client", "company": "...", "quote": "...", "rating": 5}
     ]
   },
-  ${data.photoUrls && data.photoUrls.length > 0 ? `"gallery": {
-    "headline": "gallery headline (e.g. 'Notre restaurant', 'Nos réalisations', 'Galerie photos')",
-    "subheadline": "one sentence",
+  ${hasPhotos ? `"gallery": {
+    "headline": "section title",
+    "subheadline": null,
     "photos": ${JSON.stringify(data.photoUrls)},
     "columns": 3
   },` : '"gallery": null,'}
   "pricing": {
-    "headline": "pricing section headline — for restaurants use 'Notre menu' or 'Nos formules', for others 'Nos offres'",
-    "subheadline": "one sentence",
+    "headline": "for restaurants: 'Nos formules' or 'À la carte'. For others: 'Nos offres'",
+    "subheadline": null,
     "tiers": [
-      {"name": "tier/formula name", "price": "price or price range", "period": "per person/month or null", "description": "who this is for", "features": ["item1","item2","item3","item4"], "ctaText": "CTA text", "highlighted": false},
-      {"name": "tier/formula name", "price": "price", "period": "or null", "description": "who this is for", "features": ["item1","item2","item3","item4","item5"], "ctaText": "CTA text", "highlighted": true},
-      {"name": "tier/formula name", "price": "price or 'Sur devis'", "period": "or null", "description": "who this is for", "features": ["item1","item2","item3","item4"], "ctaText": "CTA text", "highlighted": false}
+      {"name": "tier name", "price": "price", "period": "or null", "description": "short", "features": ["item","item","item","item"], "ctaText": "action", "highlighted": false},
+      {"name": "tier name", "price": "price", "period": "or null", "description": "short", "features": ["item","item","item","item","item"], "ctaText": "action", "highlighted": true},
+      {"name": "tier name", "price": "Sur devis", "period": null, "description": "short", "features": ["item","item","item","item"], "ctaText": "action", "highlighted": false}
     ]
   },
   "contact": {
-    "headline": "contact section headline",
-    "subheadline": "warm inviting one-liner",
-    "email": "inferred email or example@business.fr",
-    "phone": "phone from description or empty string",
-    "address": "address from description or just city",
-    "whatsapp": "phone digits from description or null",
+    "headline": "simple title (e.g. 'Nous trouver', 'Réserver', 'Contact')",
+    "subheadline": "one short practical sentence",
+    "email": "from description or example@domain.fr",
+    "phone": "from description or ''",
+    "address": "from description or city only",
+    "whatsapp": "digits only from description or null",
     "mapsUrl": null,
     "showForm": true,
     "variant": "split"
   },
   "footer": {
     "companyName": "business name",
-    "tagline": "brand tagline max 6 words",
+    "tagline": "max 5 words, plain statement not slogan",
     "copyright": "© ${new Date().getFullYear()} [business name]. Tous droits réservés.",
     "variant": "full"
   }
-}
-
-Make EVERYTHING specific to this exact business. No generic placeholder text. Be creative and authentic.`;
+}`;
 
     const message = await client.messages.create({
       model: 'claude-opus-4-6',
@@ -152,11 +179,11 @@ Make EVERYTHING specific to this exact business. No generic placeholder text. Be
     const jsonStr = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```$/m, '').trim();
     const g = JSON.parse(jsonStr);
 
-    const primary = g.meta?.primaryColor ?? '#e85d26';
+    const primary = g.meta?.primaryColor ?? '#c41e3a';
     const tone = g.meta?.tone ?? 'professional';
-    const template = g.meta?.template ?? 'saas';
     const fontFamily = g.meta?.fontFamily ?? 'Inter, system-ui, sans-serif';
     const whatsapp = g.meta?.whatsapp ?? null;
+    const backgroundImageUrl = BACKGROUNDS[g.meta?.backgroundCategory] ?? BACKGROUNDS.default;
 
     const theme: SiteTheme = {
       primaryColor: primary,
@@ -168,31 +195,23 @@ Make EVERYTHING specific to this exact business. No generic placeholder text. Be
     const blocks: SiteBlock[] = [];
     let order = 0;
 
-    // Hero
     blocks.push({
       id: generateId(), type: 'hero', order: order++,
-      content: { ...g.hero, whatsapp, variant: 'centered' },
+      content: { ...g.hero, whatsapp, backgroundImageUrl, variant: 'centered' },
     });
-
-    // About
     blocks.push({
       id: generateId(), type: 'about', order: order++,
       content: { ...g.about },
     });
-
-    // Features / services
     blocks.push({
       id: generateId(), type: 'features', order: order++,
       content: { ...g.features, variant: 'grid' },
     });
-
-    // Stats
     blocks.push({
       id: generateId(), type: 'stats', order: order++,
       content: g.stats,
     });
 
-    // Gallery (only if photos provided)
     if (g.gallery && hasPhotos) {
       blocks.push({
         id: generateId(), type: 'gallery', order: order++,
@@ -200,25 +219,18 @@ Make EVERYTHING specific to this exact business. No generic placeholder text. Be
       });
     }
 
-    // Testimonials
     blocks.push({
       id: generateId(), type: 'testimonials', order: order++,
       content: { ...g.testimonials, variant: 'cards' },
     });
-
-    // Pricing (for non-restaurants too, framed as formulas/menus)
     blocks.push({
       id: generateId(), type: 'pricing', order: order++,
       content: { ...g.pricing, variant: 'cards' },
     });
-
-    // Contact
     blocks.push({
       id: generateId(), type: 'contact', order: order++,
       content: { ...g.contact, whatsapp },
     });
-
-    // Footer
     blocks.push({
       id: generateId(), type: 'footer', order: order++,
       content: { ...g.footer },

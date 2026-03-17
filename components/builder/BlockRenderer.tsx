@@ -22,13 +22,13 @@ export function BlockRenderer({ block, theme, isPreview }: BlockRendererProps) {
     case 'hero':
       return <HeroBlock content={block.content as HeroContent} theme={theme} isPreview={isPreview} />;
     case 'features':
-      return <FeaturesBlock content={block.content as FeaturesContent} isPreview={isPreview} />;
+      return <FeaturesBlock content={block.content as FeaturesContent} theme={theme} isPreview={isPreview} />;
     case 'stats':
-      return <StatsBlock content={block.content as StatsContent} isPreview={isPreview} />;
+      return <StatsBlock content={block.content as StatsContent} theme={theme} isPreview={isPreview} />;
     case 'testimonials':
-      return <TestimonialsBlock content={block.content as TestimonialsContent} isPreview={isPreview} />;
+      return <TestimonialsBlock content={block.content as TestimonialsContent} theme={theme} isPreview={isPreview} />;
     case 'pricing':
-      return <PricingBlock content={block.content as PricingContent} isPreview={isPreview} />;
+      return <PricingBlock content={block.content as PricingContent} theme={theme} isPreview={isPreview} />;
     case 'contact':
       return <ContactBlock content={block.content as ContactContent} theme={theme} isPreview={isPreview} />;
     case 'footer':
