@@ -1,32 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import type { SiteBlock, SiteTemplate, SiteTheme } from '@/lib/types';
+import type { SiteBlock, SiteTheme } from '@/lib/types';
 import { generateId } from '@/lib/utils';
 
 export interface OnboardingData {
-  // Step 1 — Identity
-  businessName: string;
-  businessType: string;
-  city: string;
-  address?: string;
-  phone?: string;
-  businessEmail?: string;
-  foundingYear?: string;
-  teamSize?: string;
-  // Step 2 — Activity
-  description: string;
-  services: string;
-  targetAudience?: string;
-  openingHours?: string;
-  keywords?: string;
-  // Step 3 — Style
-  tone: 'luxury' | 'fun' | 'professional' | 'minimal';
-  brandColor: string;
-  mapsLink?: string;
-  // Step 4 — Media
-  hasLogo?: boolean;
-  photosCount?: number;
-  reviews?: string;
+  prompt: string;   // Free-form business description
+  reviews?: string; // Pasted customer reviews (optional)
 }
 
 export interface GeneratedSite {
@@ -35,51 +14,35 @@ export interface GeneratedSite {
   suggestedName: string;
 }
 
-const TONE_DESCRIPTIONS = {
-  luxury: 'sophisticated, premium, exclusive, elegant. Refined vocabulary, emphasis on quality and prestige.',
-  fun: 'energetic, playful, casual, friendly. Exclamations, warmth, conversational phrasing.',
-  professional: 'clear, authoritative, trustworthy, results-oriented. Expertise and reliability.',
-  minimal: 'concise, clean, understated. Short sentences, no superlatives.',
-};
-
-function detectTemplate(businessType: string): SiteTemplate {
-  const lower = businessType.toLowerCase();
-  if (/restaurant|café|cafe|bar|brasserie|pizz|boulan|pâtiss|traiteur|food|cuisine|bistro|resto|hôtel|hotel|auberge|boucherie|fromagerie|épicerie/.test(lower)) return 'restaurant';
-  if (/agence|studio|design|créat|communic|market|conseil|consult|publicit|brand|media|graphi|web|digital/.test(lower)) return 'agency';
-  return 'saas';
-}
-
 export async function POST(req: NextRequest) {
   try {
     const data: OnboardingData = await req.json();
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 
-    const template = detectTemplate(data.businessType);
-    const bgGradient = template === 'restaurant' ? 'amber-red' : template === 'agency' ? 'teal-blue' : 'purple-blue';
-    const toneDesc = TONE_DESCRIPTIONS[data.tone];
-
     const hasRealReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const prompt = `You are a world-class copywriter and web designer. Create complete, highly personalised website content for this business. Write entirely in the same language as the business description (French if French, English if English, etc.).
+    const prompt = `You are a world-class copywriter and web designer. A business owner described their business in free-form text. Extract all relevant information and create a complete, highly personalised website.
 
-BUSINESS INFORMATION:
-- Name: ${data.businessName}
-- Type: ${data.businessType}
-- City: ${data.city}${data.address ? `\n- Address: ${data.address}` : ''}${data.phone ? `\n- Phone: ${data.phone}` : ''}${data.businessEmail ? `\n- Email: ${data.businessEmail}` : ''}${data.foundingYear ? `\n- Founded: ${data.foundingYear}` : ''}${data.teamSize ? `\n- Team size: ${data.teamSize}` : ''}
+Write ALL content in the SAME LANGUAGE as the business description (French if French, English if English, etc.).
 
-ACTIVITY:
-- Description: ${data.description}
-- Services/Products: ${data.services}${data.targetAudience ? `\n- Target audience: ${data.targetAudience}` : ''}${data.openingHours ? `\n- Opening hours: ${data.openingHours}` : ''}${data.keywords ? `\n- SEO keywords: ${data.keywords}` : ''}
+BUSINESS DESCRIPTION:
+${data.prompt}
 
-STYLE:
-- Tone: ${data.tone} — ${toneDesc}
-- Brand color: ${data.brandColor}${data.hasLogo ? '\n- Logo: provided' : ''}${data.photosCount ? `\n- Photos: ${data.photosCount} provided` : ''}
+${hasRealReviews ? `REAL CUSTOMER REVIEWS (extract up to 3, keep real quotes):\n${data.reviews}` : ''}
 
-${hasRealReviews ? `REAL CUSTOMER REVIEWS (extract up to 3, format them properly, keep the real quotes):\n${data.reviews}` : ''}
+From the description, infer:
+- Business name, type, city, services, tone (luxury/professional/fun/minimal), brand color (hex), target audience
+- If tone is not clear, default to "professional"
+- If brand color is not mentioned, pick a fitting one based on the business type
 
 Generate a JSON object with this EXACT structure (raw JSON only, no markdown):
 {
-  "suggestedName": "site name",
+  "suggestedName": "business name from description",
+  "meta": {
+    "tone": "luxury|professional|fun|minimal",
+    "brandColor": "#hexcolor",
+    "template": "restaurant|agency|saas"
+  },
   "hero": {
     "headline": "punchy headline max 8 words",
     "subheadline": "2-sentence value proposition for the target audience",
@@ -129,18 +92,18 @@ Generate a JSON object with this EXACT structure (raw JSON only, no markdown):
   "contact": {
     "headline": "contact section headline",
     "subheadline": "inviting one-liner",
-    "email": "${data.businessEmail || `contact@${data.businessName.toLowerCase().replace(/\s+/g, '')}.fr`}",
-    "phone": "${data.phone || ''}",
-    "address": "${data.address ? data.address + ', ' + data.city : data.city}"
+    "email": "inferred or example email",
+    "phone": "inferred or empty string",
+    "address": "inferred address or city"
   },
   "footer": {
-    "companyName": "${data.businessName}",
+    "companyName": "business name",
     "tagline": "brand tagline max 6 words",
-    "copyright": "© ${new Date().getFullYear()} ${data.businessName}. Tous droits réservés."
+    "copyright": "© ${new Date().getFullYear()} [business name]. Tous droits réservés."
   }
 }
 
-Make ALL content highly specific to this exact business. Use relevant emojis. Match the tone perfectly.${data.openingHours ? ' Include opening hours in the contact section description.' : ''}`;
+Make ALL content highly specific to the described business. Use relevant emojis. Match the tone perfectly.`;
 
     const message = await client.messages.create({
       model: 'claude-opus-4-6',
@@ -152,10 +115,15 @@ Make ALL content highly specific to this exact business. Use relevant emojis. Ma
     const jsonStr = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```$/m, '').trim();
     const generated = JSON.parse(jsonStr);
 
+    const tone = generated.meta?.tone ?? 'professional';
+    const brandColor = generated.meta?.brandColor ?? '#7c3aed';
+    const template = generated.meta?.template ?? 'saas';
+    const bgGradient = template === 'restaurant' ? 'amber-red' : template === 'agency' ? 'teal-blue' : 'purple-blue';
+
     const theme: SiteTheme = {
-      primaryColor: data.brandColor,
-      fontFamily: data.tone === 'luxury' ? 'Georgia, serif' : 'Inter, system-ui, sans-serif',
-      borderRadius: data.tone === 'minimal' ? 'sm' : data.tone === 'luxury' ? 'lg' : 'md',
+      primaryColor: brandColor,
+      fontFamily: tone === 'luxury' ? 'Georgia, serif' : 'Inter, system-ui, sans-serif',
+      borderRadius: tone === 'minimal' ? 'sm' : tone === 'luxury' ? 'lg' : 'md',
       darkMode: true,
     };
 

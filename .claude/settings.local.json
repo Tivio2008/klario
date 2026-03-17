@@ -34,7 +34,21 @@
       "Bash(git init:*)",
       "Bash(git commit:*)",
       "Bash(git config:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(cmd /c \"gh --version 2>&1\" && cmd /c \"vercel --version 2>&1\")",
+      "Bash(where gh:*)",
+      "Bash(powershell -Command \"Get-Command gh,vercel,npx -ErrorAction SilentlyContinue | Select-Object Name,Source\")",
+      "Bash(powershell -Command \"winget install --id GitHub.cli --silent --accept-package-agreements --accept-source-agreements 2>&1\")",
+      "Bash(powershell -Command \"& 'C:\\\\Program Files\\\\GitHub CLI\\\\gh.exe' --version 2>&1\")",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\Program Files\\\\' | Where-Object {$_.Name -like '*GitHub*' -or $_.Name -like '*gh*'}\")",
+      "Bash(cmd /c \"where gh 2>nul && gh --version\" 2>&1)",
+      "Bash(cmd /c \"taskkill /IM msiexec.exe /F 2>nul & taskkill /IM winget.exe /F 2>nul & echo done\")",
+      "Bash(powershell -Command \"Invoke-WebRequest -Uri 'https://github.com/cli/cli/releases/download/v2.67.0/gh_2.67.0_windows_amd64.zip' -OutFile 'C:\\\\klario\\\\gh.zip' -UseBasicParsing\" 2>&1)",
+      "Bash(powershell -Command \"Expand-Archive -Path 'C:\\\\klario\\\\gh.zip' -DestinationPath 'C:\\\\klario\\\\gh-cli' -Force\" 2>&1 && ls /c/klario/gh-cli/)",
+      "Bash(/c/klario/gh-cli/bin/gh.exe --version 2>&1)",
+      "Bash(/c/klario/gh-cli/bin/gh.exe auth:*)",
+      "Bash(/c/klario/gh-cli/bin/gh.exe repo:*)",
+      "Bash(printf:*)"
     ]
   }
 }

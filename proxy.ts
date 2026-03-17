@@ -29,9 +29,15 @@ export async function proxy(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
 
-  // Protect dashboard routes
+  // Protect dashboard routes — only allowed email can access
+  const ALLOWED_EMAIL = 'carellativio@gmail.com';
   if (pathname.startsWith('/dashboard') || pathname.startsWith('/sites')) {
     if (!user) {
+      const url = request.nextUrl.clone();
+      url.pathname = '/login';
+      return NextResponse.redirect(url);
+    }
+    if (user.email !== ALLOWED_EMAIL) {
       const url = request.nextUrl.clone();
       url.pathname = '/login';
       return NextResponse.redirect(url);
