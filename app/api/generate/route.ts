@@ -55,25 +55,51 @@ export async function POST(req: NextRequest) {
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `You create beautiful, modern websites as single HTML files.
+    const systemPrompt = `You create complete, beautiful websites as single HTML files.
 
-STYLE: Professional design, warm colors (no purple/neon), system fonts, smooth animations, mobile-first.
-CONTENT: Same language as input, natural tone, specific details, no marketing fluff.
-BUTTONS: All functional - tel:, mailto:, wa.me links. Working forms with validation.
-FORMAT: Single file, inline CSS/JS, no external dependencies.`;
+CRITICAL - USE REAL DATA:
+- Extract phone numbers, emails, addresses, hours from the business description
+- Use EXACT contact info provided - never invent fake numbers
+- If info is missing, leave it out - don't make it up
+
+CONTENT: Write in same language as input, natural tone, specific to the business.
+BUTTONS: Functional tel:/mailto:/wa.me links with REAL numbers from description.
+FORMAT: Complete HTML with ALL sections visible, inline CSS/JS.`;
 
     const userPrompt = `Business: ${data.prompt}
 ${hasReviews ? `\nReviews: ${data.reviews}` : ''}
 ${hasPhotos ? `\nPhotos: ${JSON.stringify(data.photoUrls)}` : ''}
 
-Create a complete single-file website with:
-- <!DOCTYPE html>, <head> with meta tags, <style> with CSS, <body> with content, <script> with JS
-- Sections: Hero (headline + CTA), About, Services (6 items), Testimonials (3), ${hasPhotos ? 'Gallery, ' : ''}Contact (form), Footer
-- Functional buttons: tel: links for phone, wa.me for WhatsApp, mailto: for email, working forms
-- For restaurants: booking modal + menu link (#menu-link)
-- Beautiful design, smooth animations, mobile responsive
+STEP 1 - Extract from business description:
+- Phone number (format: +41 XX XXX XX XX or similar)
+- Email address
+- Physical address
+- Opening hours
+- Owner/chef names
+- Specific menu items or specialties mentioned
 
-Return ONLY the complete HTML (no markdown).`;
+STEP 2 - Create complete single-file website with:
+- <!DOCTYPE html>, <head> with meta tags, <style> with CSS, <body> with content, <script> with JS
+- Hero: compelling headline, subheadline with business specialty, CTA button with tel: link using EXTRACTED phone
+- About: story of the business, owner info, what makes it unique (2-3 paragraphs)
+- Services/Specialties: 6 specific items from business description with descriptions
+- Testimonials: 3 reviews (use provided reviews or create realistic ones)
+${hasPhotos ? '- Gallery: photo grid with provided images\n' : ''}- Contact: working form, EXTRACTED phone/email/address, opening hours, Google Maps embed
+- Footer: business info, social links
+- For restaurants: booking modal with phone/WhatsApp buttons using EXTRACTED phone + menu link (#menu-link)
+
+STEP 3 - Functional buttons with REAL data:
+- tel: links using EXTRACTED phone (not invented numbers like 077...)
+- wa.me links for WhatsApp with EXTRACTED phone
+- mailto: links with EXTRACTED email
+- All sections must have full content - NO empty divs or placeholder text
+
+STEP 4 - Design:
+- Beautiful, modern design with smooth animations
+- Mobile responsive (flexbox/grid)
+- Professional color scheme matching business type
+
+Return ONLY the complete HTML (no markdown, no explanation).`;
 
     const message = await retryWithBackoff(() =>
       client.messages.create({
