@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `You are a web designer. Create complete, beautiful single-page websites. Extract real contact info from descriptions. Write all content in the same language as the input. Use inline CSS and JS only.`;
+    const systemPrompt = `Tu génères un site web pour un COMMERCE LOCAL (restaurant, coiffeur, boulangerie, salon, boutique, etc). Style chaleureux et humain, PAS de style startup/SaaS/tech. Utilise des vraies informations extraites de la description. Écris tout le contenu dans la même langue que l'input. CSS et JS inline uniquement.`;
 
     const userPrompt = `Business: ${data.prompt}
 ${data.logoUrl ? `\nLogo URL: ${data.logoUrl}` : ''}
@@ -125,7 +125,7 @@ IMPORTANT:
 - Extract and use REAL contact info from the description
 - Use Unsplash images with direct URLs matching the business type
 - Include working reservation modal with mailto: functionality
-- Beautiful, modern design with colors, spacing, animations
+- STYLE: Commerce local chaleureux et humain - PAS de style startup/SaaS/tech/corporate. Couleurs chaleureuses (rouge, orange, marron, vert naturel), typographie lisible et conviviale, espacement généreux, design accueillant
 - Mobile responsive layout
 - N'utilise AUCUN emoji dans le site généré. Pas d'émojis dans les titres, boutons, textes, icônes ou anywhere. Utilise uniquement du texte et des icônes CSS/SVG.
 
