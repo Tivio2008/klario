@@ -778,7 +778,7 @@ export default function NewSitePage() {
               </div>
               <h3 className="text-xl font-bold text-white mb-2">Création complète</h3>
               <p className="text-gray-400 text-sm mb-4">
-                Formulaire guidé en 5 étapes pour un contrôle total sur chaque détail.
+                Formulaire guidé en 6 étapes pour un contrôle total sur chaque détail.
               </p>
               <div className="flex items-center text-orange-400 text-sm font-medium">
                 2-3 minutes
