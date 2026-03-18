@@ -10,7 +10,7 @@ import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
 import { generateToken, isLinkExpired } from '@/lib/utils';
 import {
-  Save, ChevronLeft, Share2, Settings, Link2, Copy, Trash2, Eye, ExternalLink, UtensilsCrossed
+  Save, ChevronLeft, Share2, Settings, Link2, Copy, Trash2, Eye, ExternalLink, UtensilsCrossed, Wand2
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -37,6 +37,9 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
   const [showSettings, setShowSettings] = React.useState(false);
   const [creatingLink, setCreatingLink] = React.useState(false);
   const [hasChanges, setHasChanges] = React.useState(false);
+  const [editPrompt, setEditPrompt] = React.useState('');
+  const [editing, setEditing] = React.useState(false);
+  const [showEditDialog, setShowEditDialog] = React.useState(false);
 
   function markChanged() { setHasChanges(true); }
 
@@ -48,6 +51,7 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
       .update({
         status: site.status,
         name: site.name,
+        html: site.html,
         updated_at: new Date().toISOString(),
       })
       .eq('id', site.id);
@@ -58,6 +62,35 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
     } else {
       toast('Sauvegardé !', 'success');
       setHasChanges(false);
+    }
+  }
+
+  async function handleEditWithPrompt() {
+    if (!editPrompt.trim() || !site.html) return;
+
+    setEditing(true);
+    try {
+      const res = await fetch('/api/edit-html', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: site.html, prompt: editPrompt }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || 'Échec de la modification');
+      }
+
+      const { html } = await res.json();
+      setSite(prev => ({ ...prev, html }));
+      setEditPrompt('');
+      markChanged();
+      toast('Site modifié !', 'success');
+    } catch (err) {
+      console.error('Edit error:', err);
+      toast(err instanceof Error ? err.message : 'Erreur de modification', 'error');
+    } finally {
+      setEditing(false);
     }
   }
 
@@ -141,6 +174,14 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
             <UtensilsCrossed className="h-5 w-5" />
           </a>
         )}
+
+        <button
+          onClick={() => setShowEditDialog(true)}
+          className="p-2 text-gray-400 hover:text-purple-400 transition-colors rounded-lg hover:bg-purple-500/10"
+          title="Modifier par prompt"
+        >
+          <Wand2 className="h-5 w-5" />
+        </button>
 
         <button
           onClick={() => setShowSettings(true)}
@@ -265,6 +306,34 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
                 })}
               </div>
             )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit with Prompt Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Modifier le site</DialogTitle>
+            <DialogDescription>Décrivez les modifications à apporter au site</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <div>
+              <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">
+                Que voulez-vous changer ?
+              </label>
+              <textarea
+                className="w-full h-24 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 py-2 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[var(--ring)] resize-none"
+                placeholder="Ex: Change le titre en 'Bienvenue chez nous', remplace la couleur bleue par du vert, ajoute une section galerie..."
+                value={editPrompt}
+                onChange={e => setEditPrompt(e.target.value)}
+                disabled={editing}
+              />
+            </div>
+            <Button onClick={handleEditWithPrompt} loading={editing} disabled={!editPrompt.trim()}>
+              <Wand2 className="h-4 w-4" />
+              Appliquer les modifications
+            </Button>
           </div>
         </DialogContent>
       </Dialog>

@@ -73,7 +73,8 @@
       "Bash(jobs:*)",
       "Bash(pkill:*)",
       "Bash(git push:*)",
-      "Bash(grep -n -i \"prompt\\\\|edit.*html\\\\|modify\" C:/klario/app/\\\\\\(dashboard\\\\\\)/sites/[id]/edit/EditorClient.tsx)"
+      "Bash(grep -n -i \"prompt\\\\|edit.*html\\\\|modify\" C:/klario/app/\\\\\\(dashboard\\\\\\)/sites/[id]/edit/EditorClient.tsx)",
+      "Bash(wc:*)"
     ]
   }
 }
