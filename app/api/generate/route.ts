@@ -125,7 +125,17 @@ IMPORTANT:
 - Include working reservation modal with mailto: functionality
 - Beautiful, modern design with colors, spacing, animations
 - Mobile responsive layout
-- Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
+
+INSTRUCTIONS SUPPLÉMENTAIRES:
+1. LOGO: Si logo_url est fourni, utiliser <img src="[logo_url]"> dans le header (max-height: 50px)
+2. IMAGES pour restaurant italien:
+   - Hero background: https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200
+   - Pasta photo: https://images.unsplash.com/photo-1473093226555-0b7ce5efdd0e?w=600
+   - Pizza photo: https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600
+3. RÉSERVATION: Bouton "Réserver" ouvre un modal HTML/CSS/JS avec formulaire (Nom, Email, Téléphone, Date, Heure, Nombre de personnes) qui utilise mailto: vers l'email du restaurant extrait de la description
+4. AVIS: Section avec 3 avis clients comprenant des étoiles ⭐⭐⭐⭐⭐ dorées et noms réalistes
+
+Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
 
     const message = await retryWithBackoff(() =>
       client.messages.create({
