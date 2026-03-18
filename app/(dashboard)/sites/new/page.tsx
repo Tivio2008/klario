@@ -58,6 +58,7 @@ const STEPS = [
   { id: 3, title: 'Services' },
   { id: 4, title: 'Style' },
   { id: 5, title: 'Photos' },
+  { id: 6, title: 'Avis clients' },
 ];
 
 interface CompleteFormData {
@@ -71,7 +72,13 @@ interface CompleteFormData {
   whatsapp: string;
 }
 
-function CompleteMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: string, photoUrls?: string[]) => void }) {
+interface Review {
+  name: string;
+  rating: number;
+  comment: string;
+}
+
+function CompleteMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: string, photoUrls?: string[], reviews?: Review[]) => void }) {
   const [step, setStep] = React.useState(1);
   const [formData, setFormData] = React.useState<CompleteFormData>({
     businessName: '',
@@ -88,6 +95,7 @@ function CompleteMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: s
   const [logoPreview, setLogoPreview] = React.useState<string | null>(null);
   const [photoFiles, setPhotoFiles] = React.useState<File[]>([]);
   const [photoPreviews, setPhotoPreviews] = React.useState<string[]>([]);
+  const [reviews, setReviews] = React.useState<Review[]>([{ name: '', rating: 5, comment: '' }]);
 
   const logoRef = React.useRef<HTMLInputElement>(null);
   const photoRef = React.useRef<HTMLInputElement>(null);
@@ -139,7 +147,10 @@ ${formData.colors ? `Couleurs : ${formData.colors}` : ''}
 ${formData.phone ? `Téléphone : ${formData.phone}` : ''}
 ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
 
-    onGenerate(prompt, logoUrl, photoUrls);
+    // Filter reviews that have at least name and comment
+    const validReviews = reviews.filter(r => r.name.trim() && r.comment.trim());
+
+    onGenerate(prompt, logoUrl, photoUrls, validReviews.length > 0 ? validReviews : undefined);
   }
 
   const canProceed = () => {
@@ -149,6 +160,7 @@ ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
       case 3: return formData.services.length > 10;
       case 4: return true; // Optional
       case 5: return true; // Optional
+      case 6: return true; // Optional
       default: return false;
     }
   };
@@ -323,6 +335,76 @@ ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
               </div>
             </>
           )}
+
+          {step === 6 && (
+            <>
+              <h2 className="text-2xl font-bold text-white mb-6">Avis clients</h2>
+              <p className="text-gray-400 mb-4">Ajoutez jusqu'à 5 avis Google Maps (optionnel)</p>
+              <div className="flex flex-col gap-4">
+                {reviews.map((review, idx) => (
+                  <div key={idx} className="glass rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-3">
+                      <input
+                        type="text"
+                        placeholder="Nom du client"
+                        value={review.name}
+                        onChange={e => {
+                          const newReviews = [...reviews];
+                          newReviews[idx].name = e.target.value;
+                          setReviews(newReviews);
+                        }}
+                        className="flex-1 h-10 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500"
+                      />
+                      <div className="flex gap-1">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <button
+                            key={star}
+                            type="button"
+                            onClick={() => {
+                              const newReviews = [...reviews];
+                              newReviews[idx].rating = star;
+                              setReviews(newReviews);
+                            }}
+                            className="text-xl"
+                          >
+                            {star <= review.rating ? '⭐' : '☆'}
+                          </button>
+                        ))}
+                      </div>
+                      {reviews.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => setReviews(reviews.filter((_, i) => i !== idx))}
+                          className="p-1.5 text-gray-400 hover:text-red-400 transition-colors"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      )}
+                    </div>
+                    <textarea
+                      placeholder="Commentaire du client..."
+                      value={review.comment}
+                      onChange={e => {
+                        const newReviews = [...reviews];
+                        newReviews[idx].comment = e.target.value;
+                        setReviews(newReviews);
+                      }}
+                      className="w-full h-20 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                    />
+                  </div>
+                ))}
+                {reviews.length < 5 && (
+                  <button
+                    type="button"
+                    onClick={() => setReviews([...reviews, { name: '', rating: 5, comment: '' }])}
+                    className="h-10 rounded-lg border-2 border-dashed border-[var(--border)] hover:border-orange-500/50 hover:bg-orange-500/5 transition-all text-sm text-gray-400"
+                  >
+                    + Ajouter un avis
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </motion.div>
       </AnimatePresence>
 
@@ -334,7 +416,7 @@ ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
             Précédent
           </Button>
         )}
-        {step < 5 ? (
+        {step < 6 ? (
           <Button
             onClick={() => setStep(step + 1)}
             disabled={!canProceed()}
@@ -362,7 +444,7 @@ ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
 
 // ─── Quick Mode ──────────────────────────────────────────────────────────────
 
-function QuickMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: string, photoUrls?: string[]) => void }) {
+function QuickMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: string, photoUrls?: string[], reviews?: Review[]) => void }) {
   const [prompt, setPrompt] = React.useState('');
   const [reviews, setReviews] = React.useState('');
   const [error, setError] = React.useState('');
@@ -521,7 +603,7 @@ export default function NewSitePage() {
   const [generating, setGenerating] = React.useState(false);
   const [status, setStatus] = React.useState('');
 
-  async function handleGenerate(prompt: string, logoUrl?: string, photoUrls?: string[]) {
+  async function handleGenerate(prompt: string, logoUrl?: string, photoUrls?: string[], reviews?: Review[]) {
     setGenerating(true);
 
     const supabase = createClient();
@@ -537,10 +619,15 @@ export default function NewSitePage() {
       await new Promise(r => setTimeout(r, 300));
       setStatus('Création de votre site avec l\'IA...');
 
+      // Format reviews as text for the API
+      const reviewsText = reviews && reviews.length > 0
+        ? reviews.map(r => `${r.name} (${r.rating}/5): ${r.comment}`).join('\n\n')
+        : undefined;
+
       const res = await fetch('/api/generate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: prompt.trim(), logoUrl, photoUrls }),
+        body: JSON.stringify({ prompt: prompt.trim(), logoUrl, photoUrls, reviews: reviewsText }),
       });
 
       if (!res.ok) {
