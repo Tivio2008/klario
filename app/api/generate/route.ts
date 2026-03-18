@@ -29,6 +29,8 @@ export async function POST(req: NextRequest) {
 
     console.log('Starting HTML generation with Claude Haiku 4.5...');
     console.log('Prompt length:', data.prompt.length);
+    console.log('Logo URL:', data.logoUrl);
+    console.log('Photo URLs:', data.photoUrls);
 
     // Retry helper for 529 errors
     async function retryWithBackoff<T>(
@@ -93,12 +95,12 @@ Create a COMPLETE HTML website with ALL these sections filled with content:
    - Section title
    - 2-3 paragraphs telling the story of the business
    - What makes them unique
-   - 2-3 photos from Unsplash matching business type (pasta, pizza, products, etc.)
+   ${hasPhotos ? `- Use the provided photos: ${JSON.stringify(data.photoUrls)} as <img> tags` : '- 2-3 photos from Unsplash matching business type (pasta, pizza, products, etc.)'}
 
 6. Services/Specialties section:
    - Section title
    - Grid of 4-6 services/products with icons, names, and descriptions
-   - Use real Unsplash photos for each service if available
+   ${hasPhotos ? `- Use provided photos if available: ${JSON.stringify(data.photoUrls)}` : '- Use Unsplash photos for each service if needed'}
 
 7. Client Reviews section:
    - Section title "Avis de nos clients" or similar
@@ -127,13 +129,14 @@ IMPORTANT:
 - Mobile responsive layout
 
 INSTRUCTIONS SUPPLÉMENTAIRES:
-1. LOGO: Si logo_url est fourni, utiliser <img src="[logo_url]"> dans le header (max-height: 50px)
-2. IMAGES pour restaurant italien:
+1. LOGO: ${data.logoUrl ? `OBLIGATOIRE - Utiliser <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px"> dans le header de navigation` : 'Utiliser le nom du business en texte dans le header'}
+2. PHOTOS UPLOADÉES: ${hasPhotos ? `OBLIGATOIRE - Utiliser ces photos dans le site: ${JSON.stringify(data.photoUrls)} - Les intégrer dans la galerie, section About, ou Services avec des balises <img>` : 'Utiliser des photos Unsplash si nécessaire'}
+3. IMAGES Unsplash par défaut (si pas de photos uploadées):
    - Hero background: https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200
    - Pasta photo: https://images.unsplash.com/photo-1473093226555-0b7ce5efdd0e?w=600
    - Pizza photo: https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600
-3. RÉSERVATION: Bouton "Réserver" ouvre un modal HTML/CSS/JS avec formulaire (Nom, Email, Téléphone, Date, Heure, Nombre de personnes) qui utilise mailto: vers l'email du restaurant extrait de la description
-4. AVIS: Section avec 3 avis clients comprenant des étoiles ⭐⭐⭐⭐⭐ dorées et noms réalistes
+4. RÉSERVATION: Bouton "Réserver" ouvre un modal HTML/CSS/JS avec formulaire (Nom, Email, Téléphone, Date, Heure, Nombre de personnes) qui utilise mailto: vers l'email du restaurant extrait de la description
+5. AVIS: Section avec 3 avis clients comprenant des étoiles ⭐⭐⭐⭐⭐ dorées et noms réalistes
 
 Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
 
