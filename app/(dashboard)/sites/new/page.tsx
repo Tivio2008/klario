@@ -834,7 +834,7 @@ export default function NewSitePage() {
           <h1 className="text-3xl font-bold text-white">Création complète</h1>
         </div>
         <p className="text-gray-400 mb-6 ml-[52px]">
-          Formulaire guidé en 5 étapes pour personnaliser chaque détail.
+          Formulaire guidé en 6 étapes pour personnaliser chaque détail.
         </p>
       </div>
       <CompleteMode onGenerate={handleGenerate} />
