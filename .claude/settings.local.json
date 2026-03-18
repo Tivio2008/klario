@@ -51,7 +51,28 @@
       "Bash(printf:*)",
       "WebFetch(domain:klario-alpha.vercel.app)",
       "Bash(find:*)",
-      "Bash(node:*)"
+      "Bash(node:*)",
+      "Bash(cmd.exe /c \"dir C:\\\\klario\\\\screenshots /b\" 2>&1)",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\klario\\\\screenshots' -ErrorAction SilentlyContinue | Select-Object Name, Length\" 2>&1\npowershell -Command \"Test-Path 'C:\\\\klario\\\\screenshots'\" 2>&1)",
+      "Bash(powershell -Command \"New-Item -ItemType Directory -Force -Path 'C:\\\\klario\\\\screenshots'\" 2>&1 && node -e \"\nconst { chromium } = require\\('playwright'\\);\nconst fs = require\\('fs'\\);\nconst path = require\\('path'\\);\n\nconst DIR = 'C:\\\\\\\\\\\\\\\\klario\\\\\\\\\\\\\\\\screenshots';\nfs.mkdirSync\\(DIR, { recursive: true }\\);\n\n\\(async \\(\\) => {\n  const browser = await chromium.launch\\({ headless: true }\\);\n  const page = await browser.newPage\\({ viewport: { width: 1280, height: 800 } }\\);\n  \n  async function shot\\(name\\) {\n    const p = path.join\\(DIR, name + '.png'\\);\n    await page.screenshot\\({ path: p }\\);\n    console.log\\('📸', name, '->', p\\);\n  }\n  \n  await page.goto\\('https://klario-alpha.vercel.app/login'\\);\n  await page.fill\\('input[type=email]', 'carellativio@gmail.com'\\);\n  await page.fill\\('input[type=password]', '08-Titi2008'\\);\n  await page.click\\('button[type=submit]'\\);\n  await page.waitForURL\\('**/dashboard', { timeout: 15000 }\\);\n  await shot\\('01-dashboard'\\);\n  console.log\\('✓ dashboard'\\);\n\n  await page.click\\('text=Nouveau site'\\);\n  await page.waitForURL\\('**/sites/new'\\);\n  await page.fill\\('textarea', 'La Bella Napoli, restaurant italien à Bévilard. Pizzas au feu de bois, pâtes fraîches, tiramisu. Rouge et vert. Depuis 2008. WhatsApp: +41 32 491 23 45.'\\);\n  await page.click\\('button:has-text\\(\\\\\"Générer\\\\\"\\)'\\);\n  await shot\\('02-generating'\\);\n\n  await page.waitForURL\\('**/sites/**/edit', { timeout: 70000 }\\);\n  await page.waitForLoadState\\('networkidle'\\);\n  await shot\\('03-editor'\\);\n  console.log\\('✓ editor'\\);\n\n  await page.locator\\('button:has-text\\(\\\\\"Aperçu\\\\\"\\)'\\).first\\(\\).click\\(\\);\n  await page.waitForTimeout\\(1500\\);\n  await shot\\('04-hero'\\);\n  for \\(let i=1;i<=6;i++\\) {\n    await page.evaluate\\(n => window.scrollTo\\(0, n*900\\), i\\);\n    await page.waitForTimeout\\(700\\);\n    await shot\\('05-section-'+i\\);\n  }\n  await browser.close\\(\\);\n  console.log\\('done'\\);\n}\\)\\(\\).catch\\(e => { console.error\\(e\\); process.exit\\(1\\); }\\);\n\" 2>&1)",
+      "Bash(powershell -Command \"Get-ChildItem 'C:\\\\klario\\\\screenshots' | Select Name, Length, FullName\" 2>&1)",
+      "Bash(powershell -Command \"Get-ChildItem -Path 'C:\\\\klario\\\\screenshots' -Recurse | ForEach-Object { Write-Host $_.FullName }\" 2>&1)",
+      "Bash(powershell -Command \"ls C:\\\\klario\\\\screenshots\" 2>&1; powershell -Command \"\\(Get-ChildItem 'C:\\\\klario\\\\screenshots'\\).Count\")",
+      "Bash(cmd.exe /c \"dir C:\\\\Users\\\\carel\\\\Desktop\\\\\" 2>&1 | head -20)",
+      "Bash(cmd.exe /c \"dir \\\\\"C:\\\\Users\\\\carel\\\\Desktop\\\\\"\" 2>&1)",
+      "Read(//c/klario/app//**)",
+      "Read(//c/klario/components//**)",
+      "Bash(ls /c/klario/app/\\\\\\(dashboard\\\\\\)/)",
+      "Bash(ls \"/c/klario/app/\\(dashboard\\)/sites/\")",
+      "Bash(ls \"/c/klario/app/\\(dashboard\\)/sites/[id]/\")",
+      "Bash(ls \"/c/klario/app/\\(dashboard\\)/sites/new/\")",
+      "Bash(ls \"/c/klario/app/\\(dashboard\\)/sites/[id]/edit/\")",
+      "Bash(ls \"/c/klario/app/\\(dashboard\\)/sites/[id]/settings/\")",
+      "Bash(vercel:*)",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); print\\(data[0][''''text'''']\\)\")",
+      "Bash(jobs:*)",
+      "Bash(pkill:*)",
+      "Bash(git push:*)"
     ]
   }
 }

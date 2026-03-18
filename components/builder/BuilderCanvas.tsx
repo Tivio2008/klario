@@ -125,8 +125,8 @@ function SortableBlock({
       style={style}
       className={cn(
         'relative group',
-        isSelected && 'ring-2 ring-purple-500 ring-inset',
-        hovered && 'ring-1 ring-purple-500/30 ring-inset'
+        isSelected && 'ring-2 ring-orange-500 ring-inset',
+        hovered && 'ring-1 ring-orange-500/30 ring-inset'
       )}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
@@ -134,7 +134,7 @@ function SortableBlock({
     >
       {/* Block type label */}
       {(hovered || isSelected) && (
-        <div className="absolute top-2 left-2 z-20 flex items-center gap-1.5 bg-purple-600 text-white text-xs px-2 py-1 rounded-md font-medium capitalize">
+        <div className="absolute top-2 left-2 z-20 flex items-center gap-1.5 bg-orange-600 text-white text-xs px-2 py-1 rounded-md font-medium capitalize">
           {block.type}
         </div>
       )}
@@ -151,7 +151,7 @@ function SortableBlock({
             <GripVertical className="h-4 w-4" />
           </button>
           <button
-            className="p-1.5 text-gray-400 hover:text-purple-400 transition-colors"
+            className="p-1.5 text-gray-400 hover:text-orange-400 transition-colors"
             onClick={e => { e.stopPropagation(); onSelect(); }}
           >
             <Pencil className="h-4 w-4" />

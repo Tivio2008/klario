@@ -43,6 +43,8 @@ export function FeaturesBlock({ content, theme, isPreview }: FeaturesBlockProps)
   const primary = theme?.primaryColor ?? '#c41e3a';
   const rgb = hexToRgb(primary);
 
+  const words = content.headline.split(' ');
+
   const container = {
     hidden: {},
     show: { transition: { staggerChildren: 0.08, delayChildren: 0.1 } },
@@ -62,8 +64,24 @@ export function FeaturesBlock({ content, theme, isPreview }: FeaturesBlockProps)
           className="text-center mb-16"
         >
           <div className="inline-block w-10 h-0.5 rounded-full mb-6" style={{ backgroundColor: primary }} />
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">{content.headline}</h2>
-          {content.subheadline && <p className="text-lg text-gray-400 max-w-2xl mx-auto">{content.subheadline}</p>}
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+            {isPreview
+              ? content.headline
+              : words.map((word, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 25, filter: 'blur(5px)' }}
+                    animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                    transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                    className="inline-block mr-[0.25em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+          </h2>
+          {content.subheadline && (
+            <p className="text-lg text-gray-300 max-w-2xl mx-auto">{content.subheadline}</p>
+          )}
         </motion.div>
 
         <motion.div
@@ -78,8 +96,12 @@ export function FeaturesBlock({ content, theme, isPreview }: FeaturesBlockProps)
               <motion.div
                 key={i}
                 variants={isPreview ? {} : item}
-                whileHover={isPreview ? {} : { y: -5, borderColor: `rgba(${rgb}, 0.4)` }}
-                className="glass rounded-2xl p-6 transition-all duration-300 cursor-default group"
+                whileHover={isPreview ? {} : {
+                  y: -6,
+                  borderColor: `rgba(${rgb}, 0.5)`,
+                  boxShadow: `0 12px 40px rgba(${rgb}, 0.18), 0 0 0 1px rgba(${rgb}, 0.25)`,
+                }}
+                className="glass rounded-2xl p-6 transition-all duration-300 cursor-default"
               >
                 {IconComp ? (
                   <div
@@ -92,7 +114,7 @@ export function FeaturesBlock({ content, theme, isPreview }: FeaturesBlockProps)
                   <div className="h-0.5 w-8 rounded-full mb-5" style={{ backgroundColor: primary }} />
                 )}
                 <h3 className="text-base font-semibold text-white mb-2">{feature.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed">{feature.description}</p>
+                <p className="text-gray-300 text-sm leading-relaxed">{feature.description}</p>
               </motion.div>
             );
           })}

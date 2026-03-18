@@ -1,7 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
-import type { SiteBlock, SiteTheme } from '@/lib/types';
-import { generateId } from '@/lib/utils';
 
 export interface OnboardingData {
   prompt: string;
@@ -11,234 +9,209 @@ export interface OnboardingData {
 }
 
 export interface GeneratedSite {
-  blocks: SiteBlock[];
-  theme: SiteTheme;
+  html: string;
+  menuHtml?: string;
   suggestedName: string;
 }
-
-// Curated Unsplash photo IDs by business category
-const BACKGROUNDS: Record<string, string> = {
-  restaurant:   'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=60&auto=format&fit=crop',
-  pizza:        'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=1920&q=60&auto=format&fit=crop',
-  italian:      'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1920&q=60&auto=format&fit=crop',
-  french:       'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=1920&q=60&auto=format&fit=crop',
-  cafe:         'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1920&q=60&auto=format&fit=crop',
-  coffee:       'https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=1920&q=60&auto=format&fit=crop',
-  bakery:       'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1920&q=60&auto=format&fit=crop',
-  sushi:        'https://images.unsplash.com/photo-1579871494447-9811cf80d66c?w=1920&q=60&auto=format&fit=crop',
-  burger:       'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=1920&q=60&auto=format&fit=crop',
-  bar:          'https://images.unsplash.com/photo-1525268771113-32d9e9021a97?w=1920&q=60&auto=format&fit=crop',
-  wine:         'https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=1920&q=60&auto=format&fit=crop',
-  hair:         'https://images.unsplash.com/photo-1560066984-138dadb4c035?w=1920&q=60&auto=format&fit=crop',
-  beauty:       'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=1920&q=60&auto=format&fit=crop',
-  spa:          'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=1920&q=60&auto=format&fit=crop',
-  fitness:      'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1920&q=60&auto=format&fit=crop',
-  medical:      'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?w=1920&q=60&auto=format&fit=crop',
-  dental:       'https://images.unsplash.com/photo-1588776814546-1ffbb9f03470?w=1920&q=60&auto=format&fit=crop',
-  hotel:        'https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=60&auto=format&fit=crop',
-  construction: 'https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1920&q=60&auto=format&fit=crop',
-  real_estate:  'https://images.unsplash.com/photo-1560518883-ce09059eeffa?w=1920&q=60&auto=format&fit=crop',
-  garden:       'https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1920&q=60&auto=format&fit=crop',
-  law:          'https://images.unsplash.com/photo-1589829545856-d10d557cf95f?w=1920&q=60&auto=format&fit=crop',
-  agency:       'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=60&auto=format&fit=crop',
-  tech:         'https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=60&auto=format&fit=crop',
-  education:    'https://images.unsplash.com/photo-1524178232363-1fb2b075b655?w=1920&q=60&auto=format&fit=crop',
-  photography:  'https://images.unsplash.com/photo-1452457750107-be127b9f3f0f?w=1920&q=60&auto=format&fit=crop',
-  default:      'https://images.unsplash.com/photo-1497366216548-37526070297c?w=1920&q=60&auto=format&fit=crop',
-};
-
-const ICON_NAMES = 'utensils, coffee, wine, chef, salad, fire, leaf, flower, scissors, sparkles, heart, shield, zap, globe, briefcase, building, users, calendar, clock, pin, star, truck, wrench, phone, mail, camera, music, book, award, chart, layers, code, home, package, target';
 
 export async function POST(req: NextRequest) {
   try {
     const data: OnboardingData = await req.json();
+
+    if (!process.env.ANTHROPIC_API_KEY) {
+      console.error('ANTHROPIC_API_KEY is not set');
+      return NextResponse.json({
+        error: 'API key not configured. Please set ANTHROPIC_API_KEY in Vercel environment variables.'
+      }, { status: 500 });
+    }
+
     const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+    console.log('Starting HTML generation with Claude Opus 4.6...');
+    console.log('Prompt length:', data.prompt.length);
 
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `You are creating website content for real local businesses. Your writing should sound like it was written by someone who actually knows the business — warm, specific, direct. No corporate language.
+    const systemPrompt = `You are an expert web designer who creates stunning, hand-crafted websites. You write beautiful HTML with modern CSS animations and subtle JavaScript interactions.
 
-STRICT RULES:
-- NEVER use purple, violet, or indigo colors. Extract colors from the description. If none mentioned: restaurants → warm red/amber, salons → rose/gold, tech → deep blue/slate, nature → forest green.
-- NO emojis anywhere in the output
-- NO marketing clichés: never write "solution innovante", "passion", "excellence", "dédié à", "nous sommes fiers de", "de qualité", "sur mesure" (unless quoting), "unique en son genre", "au cœur de"
-- Content must sound human: short sentences, specific details, real-sounding
-- Write in the same language as the business description`;
+QUALITY STANDARDS (Draftly / Framer AI level):
+- Professional typography with proper hierarchy and line-height
+- Smooth, tasteful animations (fade-in, slide-up, parallax, hover effects)
+- Modern gradients and glassmorphism where appropriate
+- Perfect spacing and visual rhythm
+- Mobile-first responsive design
+- Fast loading, no external dependencies (inline everything)
+- Accessibility: semantic HTML, proper contrast, keyboard navigation
+
+STYLE GUIDELINES:
+- Colors: Deep, warm, sophisticated tones. NEVER purple/neon. Examples: Italian → #6B1F1F + #F5F0E8, French bistro → #1E3A5F + #C9A96E, Salon → #B76E79, Tech → #2C3E50
+- Fonts: System font stack for performance: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif
+- Animations: Subtle and smooth. Use CSS transitions and keyframes. Intersection Observer for scroll-triggered reveals
+- Layout: Modern CSS Grid and Flexbox. Clean whitespace. No clutter.
+- Interactions: Magnetic buttons, smooth hover states, scroll parallax
+
+CONTENT RULES:
+- Write in the EXACT same language as the business description
+- NO marketing fluff: "innovant", "excellence", "passion", "nous sommes fiers"
+- NO generic openers: "Bienvenue chez...", "Notre équipe de..."
+- Concrete, specific details from the business description
+- Natural conversational tone - like talking to a friend
+
+STRUCTURE:
+1. Hero section with strong headline, clear CTA, optional background image
+2. About section with story and highlights
+3. Services/Features grid (3-4 items)
+4. Social proof (testimonials or stats)
+5. Gallery if photos provided
+6. Contact section with form
+7. Footer
+
+CRITICAL - ALL BUTTONS MUST BE FUNCTIONAL:
+- Phone buttons: <a href="tel:+41321234567"> (use actual phone from description)
+- WhatsApp buttons: <a href="https://wa.me/41321234567"> (digits only, no + or spaces)
+- Email links: <a href="mailto:email@domain.com">
+- Reservation/Booking buttons: Open a modal with a working contact form (name, email, phone, date, time, guests)
+- Menu buttons (restaurants): <a href="#menu-link"> (will be replaced with actual menu page)
+- Contact form: Must have working validation and show success message on submit
+- NO decorative or broken buttons - every button must do something real
+
+The HTML must be:
+- Single file, fully self-contained
+- All CSS inline in <style> tag
+- All JS inline in <script> tag
+- No external dependencies
+- Production-ready, no placeholders`;
 
     const userPrompt = `Business description:
 ---
 ${data.prompt}
 ---
-${hasReviews ? `\nReal customer reviews to use as testimonials:\n${data.reviews}\n` : ''}
+${hasReviews ? `\nReal customer reviews:\n${data.reviews}\n` : ''}
+${hasPhotos ? `\nBusiness photos provided: ${data.photoUrls!.length} images\n` : ''}
 
-Generate a JSON object (raw JSON only, no markdown, no explanation):
+Generate a COMPLETE, production-ready HTML website as a single file.
 
-{
-  "suggestedName": "exact business name",
-  "meta": {
-    "primaryColor": "#hexcolor — extract from description, NEVER purple/violet/indigo",
-    "tone": "luxury|professional|fun|minimal",
-    "template": "restaurant|agency|saas",
-    "fontFamily": "Georgia, serif OR Inter, system-ui, sans-serif",
-    "whatsapp": "digits only or null",
-    "backgroundCategory": "pick ONE key from this exact list: restaurant, pizza, italian, french, cafe, coffee, bakery, sushi, burger, bar, wine, hair, beauty, spa, fitness, medical, dental, hotel, construction, real_estate, garden, law, agency, tech, education, photography, default"
-  },
-  "hero": {
-    "headline": "max 7 words — business name + what they do, direct and specific",
-    "subheadline": "2 short sentences. What you get here. Who it's for. No adjectives like 'amazing' or 'exceptional'.",
-    "ctaText": "specific verb + action (e.g. 'Réserver une table', 'Voir le menu', 'Nous appeler')",
-    "ctaSecondaryText": "second action or null",
-    "badge": "one concrete fact (e.g. 'Ouvert depuis 2008', 'Livraison 7j/7') or null"
-  },
-  "about": {
-    "headline": "short section title (e.g. 'Notre histoire', 'L\\'équipe', 'Depuis 2010')",
-    "text": "3 short paragraphs, conversational tone. Real details from the description. No generic filler.",
-    "highlights": [
-      {"iconName": "one of: ${ICON_NAMES}", "label": "concrete fact, 3-5 words"},
-      {"iconName": "...", "label": "..."},
-      {"iconName": "...", "label": "..."},
-      {"iconName": "...", "label": "..."}
-    ],
-    "imageUrl": ${data.logoUrl ? `"${data.logoUrl}"` : 'null'},
-    "variant": "split"
-  },
-  "features": {
-    "headline": "section title (e.g. 'Nos spécialités', 'Ce qu\\'on fait', 'Nos services')",
-    "subheadline": "one plain sentence, no marketing",
-    "features": [
-      {"iconName": "one of: ${ICON_NAMES}", "title": "specific item name", "description": "2 sentences, concrete, no adjectives like 'délicieux' or 'exceptionnel'"},
-      {"iconName": "...", "title": "...", "description": "..."},
-      {"iconName": "...", "title": "...", "description": "..."},
-      {"iconName": "...", "title": "...", "description": "..."},
-      {"iconName": "...", "title": "...", "description": "..."},
-      {"iconName": "...", "title": "...", "description": "..."}
-    ],
-    "columns": 3
-  },
-  "stats": {
-    "headline": null,
-    "stats": [
-      {"value": "realistic number", "suffix": "+", "label": "short label"},
-      {"value": "number", "suffix": "%", "label": "short label"},
-      {"value": "number", "suffix": "+", "label": "short label"},
-      {"value": "4.8", "suffix": "★", "label": "Avis clients"}
-    ]
-  },
-  "testimonials": {
-    "headline": "section title",
-    "subheadline": null,
-    "testimonials": [
-      {"name": "realistic name", "role": "Client", "company": "city or context", "quote": "${hasReviews ? 'verbatim from real reviews' : '1-2 sentences, specific detail about what they liked, no hyperbole'}", "rating": 5},
-      {"name": "...", "role": "Client", "company": "...", "quote": "...", "rating": 5},
-      {"name": "...", "role": "Client", "company": "...", "quote": "...", "rating": 5}
-    ]
-  },
-  ${hasPhotos ? `"gallery": {
-    "headline": "section title",
-    "subheadline": null,
-    "photos": ${JSON.stringify(data.photoUrls)},
-    "columns": 3
-  },` : '"gallery": null,'}
-  "pricing": {
-    "headline": "for restaurants: 'Nos formules' or 'À la carte'. For others: 'Nos offres'",
-    "subheadline": null,
-    "tiers": [
-      {"name": "tier name", "price": "price", "period": "or null", "description": "short", "features": ["item","item","item","item"], "ctaText": "action", "highlighted": false},
-      {"name": "tier name", "price": "price", "period": "or null", "description": "short", "features": ["item","item","item","item","item"], "ctaText": "action", "highlighted": true},
-      {"name": "tier name", "price": "Sur devis", "period": null, "description": "short", "features": ["item","item","item","item"], "ctaText": "action", "highlighted": false}
-    ]
-  },
-  "contact": {
-    "headline": "simple title (e.g. 'Nous trouver', 'Réserver', 'Contact')",
-    "subheadline": "one short practical sentence",
-    "email": "from description or example@domain.fr",
-    "phone": "from description or ''",
-    "address": "from description or city only",
-    "whatsapp": "digits only from description or null",
-    "mapsUrl": null,
-    "showForm": true,
-    "variant": "split"
-  },
-  "footer": {
-    "companyName": "business name",
-    "tagline": "max 5 words, plain statement not slogan",
-    "copyright": "© ${new Date().getFullYear()} [business name]. Tous droits réservés.",
-    "variant": "full"
-  }
-}`;
+CRITICAL - YOU MUST COMPLETE THE ENTIRE HTML:
+- Start with <!DOCTYPE html> and end with </html>
+- Do NOT stop mid-generation - complete every section
+- If you reach token limit, prioritize completing the structure over details
+
+Include ALL of these sections IN ORDER:
+1. Full <!DOCTYPE html> document
+2. Meta tags (viewport, charset, description, og tags)
+3. Inline CSS in <style> tag with:
+   - CSS reset/normalize
+   - Mobile-first responsive design (@media queries)
+   - Smooth animations (fade-in, slide-up on scroll)
+   - Modern design system (colors, typography, spacing)
+4. Inline JavaScript in <script> tag for:
+   - Scroll-triggered animations (Intersection Observer)
+   - Smooth scrolling navigation
+   - Mobile menu toggle
+   - Form submission handling with validation
+   - Booking/reservation modal functionality
+   - Subtle parallax effects
+5. REQUIRED sections (in order):
+   a) HERO: Large headline, subheadline, CTA buttons, background
+   b) ABOUT: Business story, highlights (3-4 items with icons)
+   c) SERVICES/MENU: Grid of 6 items with descriptions
+   d) TESTIMONIALS: 3 customer reviews with ratings
+   ${hasPhotos ? 'e) GALLERY: Photo grid\n   ' : ''}f) CONTACT: Form + phone/email/address
+   g) FOOTER: Copyright, links
+6. FUNCTIONAL BUTTONS (extract from business description):
+   - Phone button with tel: link if phone number found
+   - WhatsApp floating button with wa.me link if WhatsApp/phone number found
+   - Email button with mailto: link if email found
+   - Reservation/Booking button that opens a modal form (for restaurants)
+   - Menu button linking to #menu-link (for restaurants, will be replaced)
+7. Working contact form with validation and success message
+8. Booking modal for restaurants with fields: name, email, phone, date, time, number of guests
+
+${hasPhotos ? `Use these photo URLs in the gallery: ${JSON.stringify(data.photoUrls)}` : ''}
+
+IMPORTANT: Return the COMPLETE HTML from <!DOCTYPE html> to </html>.
+Do NOT stop generation early - finish every section.
+Return ONLY the HTML (no markdown, no explanation).`;
 
     const message = await client.messages.create({
       model: 'claude-opus-4-6',
-      max_tokens: 3000,
+      max_tokens: 16000, // Doublé pour sites complets
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
     });
 
-    const raw = message.content[0].type === 'text' ? message.content[0].text : '';
-    const jsonStr = raw.replace(/^```(?:json)?\s*/m, '').replace(/\s*```$/m, '').trim();
-    const g = JSON.parse(jsonStr);
+    const html = message.content[0].type === 'text' ? message.content[0].text : '';
 
-    const primary = g.meta?.primaryColor ?? '#c41e3a';
-    const tone = g.meta?.tone ?? 'professional';
-    const fontFamily = g.meta?.fontFamily ?? 'Inter, system-ui, sans-serif';
-    const whatsapp = g.meta?.whatsapp ?? null;
-    const backgroundImageUrl = BACKGROUNDS[g.meta?.backgroundCategory] ?? BACKGROUNDS.default;
-
-    const theme: SiteTheme = {
-      primaryColor: primary,
-      fontFamily,
-      borderRadius: tone === 'minimal' ? 'sm' : tone === 'luxury' ? 'lg' : 'md',
-      darkMode: true,
-    };
-
-    const blocks: SiteBlock[] = [];
-    let order = 0;
-
-    blocks.push({
-      id: generateId(), type: 'hero', order: order++,
-      content: { ...g.hero, whatsapp, backgroundImageUrl, variant: 'centered' },
-    });
-    blocks.push({
-      id: generateId(), type: 'about', order: order++,
-      content: { ...g.about },
-    });
-    blocks.push({
-      id: generateId(), type: 'features', order: order++,
-      content: { ...g.features, variant: 'grid' },
-    });
-    blocks.push({
-      id: generateId(), type: 'stats', order: order++,
-      content: g.stats,
-    });
-
-    if (g.gallery && hasPhotos) {
-      blocks.push({
-        id: generateId(), type: 'gallery', order: order++,
-        content: g.gallery,
-      });
+    // VALIDATION: Vérifier que le HTML est complet
+    if (!html.includes('</html>')) {
+      console.error('HTML INCOMPLET - pas de balise </html>');
+      console.error('Longueur:', html.length);
+      console.error('Derniers 200 chars:', html.slice(-200));
+      throw new Error('Le HTML généré est incomplet. La génération a été interrompue. Réessayez avec une description plus courte.');
     }
 
-    blocks.push({
-      id: generateId(), type: 'testimonials', order: order++,
-      content: { ...g.testimonials, variant: 'cards' },
-    });
-    blocks.push({
-      id: generateId(), type: 'pricing', order: order++,
-      content: { ...g.pricing, variant: 'cards' },
-    });
-    blocks.push({
-      id: generateId(), type: 'contact', order: order++,
-      content: { ...g.contact, whatsapp },
-    });
-    blocks.push({
-      id: generateId(), type: 'footer', order: order++,
-      content: { ...g.footer },
-    });
+    console.log('✓ HTML complet généré, longueur:', html.length);
 
-    return NextResponse.json({ blocks, theme, suggestedName: g.suggestedName } satisfies GeneratedSite);
+    // Extract business name from description or generate one
+    const nameMatch = data.prompt.match(/(?:(?:je|nous) (?:suis|sommes)|(?:c'est|voici)) ([A-ZÀ-ÿ][A-Za-zÀ-ÿ\s'-]+)|^([A-ZÀ-ÿ][A-Za-zÀ-ÿ\s'-]+)/i);
+    const suggestedName = nameMatch ? (nameMatch[1] || nameMatch[2]).trim() : 'Mon Site';
+
+    // Detect if this is a restaurant/café/bar and generate menu
+    const isRestaurant = /restaurant|café|bar|pizzeria|brasserie|bistro|trattoria|osteria|boulangerie|pâtisserie|food|cuisine/i.test(data.prompt);
+    let menuHtml: string | undefined;
+
+    if (isRestaurant) {
+      console.log('Restaurant detected - generating menu page...');
+
+      const menuPrompt = `Based on this business: "${data.prompt}"
+
+Generate a complete, realistic restaurant menu HTML page with:
+- Full <!DOCTYPE html> structure
+- Beautiful layout matching the business style (same colors, fonts, feel)
+- Navigation bar at top with restaurant name and "← Retour" link to #back-to-site
+- 4 sections: Entrées, Plats, Desserts, Boissons
+- 5-8 items per section with realistic names and descriptions in the same language as the business
+- Prices in CHF (15-35 CHF for mains, 8-15 for starters, 6-12 for desserts, 3-8 for drinks)
+- Each item: name (bold), description (1 sentence), price (right-aligned)
+- Responsive design (mobile-first)
+- Clean typography, proper spacing, appetizing presentation
+
+Make it feel authentic and specific to this exact restaurant. Use menu items that match the cuisine type.
+
+IMPORTANT: All prices MUST be in CHF with the format "XX CHF" or "XX.XX CHF"
+
+Return ONLY the HTML (no markdown). Start with <!DOCTYPE html>.`;
+
+      const menuMessage = await client.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 4000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: menuPrompt }],
+      });
+
+      menuHtml = menuMessage.content[0].type === 'text' ? menuMessage.content[0].text.trim() : undefined;
+    }
+
+    return NextResponse.json({
+      html: html.trim(),
+      menuHtml,
+      suggestedName
+    } satisfies GeneratedSite);
   } catch (err) {
-    console.error('Generation error:', err);
-    return NextResponse.json({ error: String(err) }, { status: 500 });
+    console.error('=== GENERATION ERROR ===');
+    console.error('API Key exists:', !!process.env.ANTHROPIC_API_KEY);
+    console.error('API Key prefix:', process.env.ANTHROPIC_API_KEY?.substring(0, 20));
+    console.error('Error type:', err instanceof Error ? err.constructor.name : typeof err);
+    console.error('Error message:', err instanceof Error ? err.message : String(err));
+    console.error('Error stack:', err instanceof Error ? err.stack : 'No stack trace');
+    console.error('Full error object:', JSON.stringify(err, Object.getOwnPropertyNames(err), 2));
+    console.error('======================');
+
+    const errorMessage = err instanceof Error ? err.message : String(err);
+    return NextResponse.json({
+      error: errorMessage,
+      details: process.env.NODE_ENV === 'development' ? String(err) : undefined
+    }, { status: 500 });
   }
 }

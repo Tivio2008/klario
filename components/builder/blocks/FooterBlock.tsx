@@ -14,15 +14,15 @@ export function FooterBlock({ content }: FooterBlockProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
             <div>
               <h3 className="text-xl font-bold gradient-text mb-2">{content.companyName}</h3>
-              {content.tagline && <p className="text-gray-400 text-sm">{content.tagline}</p>}
+              {content.tagline && <p className="text-gray-300 text-sm">{content.tagline}</p>}
             </div>
             {content.links && content.links.length > 0 && (
               <div>
-                <h4 className="text-sm font-semibold text-gray-300 mb-3 uppercase tracking-wider">Links</h4>
+                <h4 className="text-sm font-semibold text-gray-200 mb-3 uppercase tracking-wider">Liens</h4>
                 <ul className="flex flex-col gap-2">
                   {content.links.map((l, i) => (
                     <li key={i}>
-                      <a href={l.href} className="text-gray-400 hover:text-white text-sm transition-colors">{l.label}</a>
+                      <a href={l.href} className="text-gray-300 hover:text-white text-sm transition-colors">{l.label}</a>
                     </li>
                   ))}
                 </ul>
@@ -32,12 +32,12 @@ export function FooterBlock({ content }: FooterBlockProps) {
         ) : (
           <div className="flex flex-col items-center gap-2 mb-4">
             <h3 className="text-xl font-bold gradient-text">{content.companyName}</h3>
-            {content.tagline && <p className="text-gray-400 text-sm">{content.tagline}</p>}
+            {content.tagline && <p className="text-gray-300 text-sm">{content.tagline}</p>}
           </div>
         )}
 
-        <div className="border-t border-[var(--border)] pt-6 text-center text-gray-500 text-sm">
-          {content.copyright || `© ${new Date().getFullYear()} ${content.companyName}. All rights reserved.`}
+        <div className="border-t border-[var(--border)] pt-6 text-center text-gray-400 text-sm">
+          {content.copyright || `© ${new Date().getFullYear()} ${content.companyName}. Tous droits réservés.`}
         </div>
       </div>
     </footer>

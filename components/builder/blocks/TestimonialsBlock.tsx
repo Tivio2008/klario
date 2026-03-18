@@ -16,16 +16,6 @@ function hexToRgb(hex: string): string {
   return `${parseInt(clean.slice(0,2),16)}, ${parseInt(clean.slice(2,4),16)}, ${parseInt(clean.slice(4,6),16)}`;
 }
 
-function StarRow({ rating, animate }: { rating: number; animate: boolean }) {
-  return (
-    <div className="flex gap-1">
-      {Array.from({ length: 5 }).map((_, j) => (
-        <Star key={j} className={`h-4 w-4 ${j < rating ? 'fill-amber-400 text-amber-400' : 'text-gray-700'}`} />
-      ))}
-    </div>
-  );
-}
-
 export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlockProps) {
   const ref = useRef<HTMLDivElement>(null);
   const inView = useInView(ref, { once: true, margin: '-80px' });
@@ -55,6 +45,8 @@ export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlo
   const t = content.testimonials[active];
   if (!t) return null;
 
+  const words = content.headline.split(' ');
+
   return (
     <section className="py-24 px-6 relative overflow-hidden"
       style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d1a 100%)' }}
@@ -75,8 +67,22 @@ export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlo
           className="text-center mb-14"
         >
           <div className="inline-block w-10 h-0.5 rounded-full mb-6" style={{ backgroundColor: primary }} />
-          <h2 className="text-4xl md:text-5xl font-bold mb-3 text-white">{content.headline}</h2>
-          {content.subheadline && <p className="text-lg text-gray-400">{content.subheadline}</p>}
+          <h2 className="text-4xl md:text-5xl font-bold mb-3 text-white">
+            {isPreview
+              ? content.headline
+              : words.map((word, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 25, filter: 'blur(5px)' }}
+                    animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                    transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                    className="inline-block mr-[0.25em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+          </h2>
+          {content.subheadline && <p className="text-lg text-gray-300">{content.subheadline}</p>}
         </motion.div>
 
         <div className="relative">
@@ -94,8 +100,10 @@ export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlo
                 <Quote className="absolute top-6 right-6 h-10 w-10 opacity-5 text-white" />
 
                 {t.rating && (
-                  <div className="mb-5">
-                    <StarRow rating={t.rating} animate={inView} />
+                  <div className="flex gap-1 mb-5">
+                    {Array.from({ length: 5 }).map((_, j) => (
+                      <Star key={j} className={`h-4 w-4 ${j < t.rating! ? 'fill-amber-400 text-amber-400' : 'text-gray-700'}`} />
+                    ))}
                   </div>
                 )}
 
@@ -112,7 +120,7 @@ export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlo
                   </div>
                   <div>
                     <div className="text-white font-semibold">{t.name}</div>
-                    <div className="text-gray-400 text-sm">{t.role}{t.company ? `, ${t.company}` : ''}</div>
+                    <div className="text-gray-300 text-sm">{t.role}{t.company ? `, ${t.company}` : ''}</div>
                   </div>
                 </div>
               </motion.div>
@@ -164,7 +172,10 @@ export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlo
               <motion.button
                 key={i}
                 onClick={() => go(i, i > active ? 1 : -1)}
-                whileHover={isPreview ? {} : { y: -4 }}
+                whileHover={isPreview ? {} : {
+                  y: -4,
+                  boxShadow: `0 8px 30px rgba(${rgb}, 0.15)`,
+                }}
                 className="glass rounded-xl p-4 text-left transition-all duration-200"
                 style={i === active ? { borderColor: `rgba(${rgb}, 0.4)`, backgroundColor: `rgba(${rgb}, 0.06)` } : {}}
               >
@@ -173,8 +184,8 @@ export function TestimonialsBlock({ content, theme, isPreview }: TestimonialsBlo
                     <Star key={j} className="h-3 w-3 fill-amber-400 text-amber-400" />
                   ))}
                 </div>
-                <p className="text-gray-300 text-xs line-clamp-2 italic mb-2">&ldquo;{testimonial.quote}&rdquo;</p>
-                <span className="text-xs text-gray-500">{testimonial.name}</span>
+                <p className="text-gray-200 text-xs line-clamp-2 italic mb-2">&ldquo;{testimonial.quote}&rdquo;</p>
+                <span className="text-xs text-gray-400">{testimonial.name}</span>
               </motion.button>
             ))}
           </motion.div>

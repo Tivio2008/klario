@@ -22,6 +22,8 @@ export function PricingBlock({ content, theme, isPreview }: PricingBlockProps) {
   const primary = theme?.primaryColor ?? '#c41e3a';
   const rgb = hexToRgb(primary);
 
+  const words = content.headline.split(' ');
+
   return (
     <section className="py-24 px-6 bg-[#0a0a0f]" ref={ref}>
       <div className="max-w-6xl mx-auto">
@@ -32,8 +34,22 @@ export function PricingBlock({ content, theme, isPreview }: PricingBlockProps) {
           className="text-center mb-16"
         >
           <div className="inline-block w-10 h-0.5 rounded-full mb-6" style={{ backgroundColor: primary }} />
-          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">{content.headline}</h2>
-          {content.subheadline && <p className="text-lg text-gray-400">{content.subheadline}</p>}
+          <h2 className="text-4xl md:text-5xl font-bold mb-4 text-white">
+            {isPreview
+              ? content.headline
+              : words.map((word, i) => (
+                  <motion.span
+                    key={i}
+                    initial={{ opacity: 0, y: 25, filter: 'blur(5px)' }}
+                    animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                    transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                    className="inline-block mr-[0.25em]"
+                  >
+                    {word}
+                  </motion.span>
+                ))}
+          </h2>
+          {content.subheadline && <p className="text-lg text-gray-300">{content.subheadline}</p>}
         </motion.div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -43,7 +59,12 @@ export function PricingBlock({ content, theme, isPreview }: PricingBlockProps) {
               initial={isPreview ? false : { opacity: 0, y: 50, scale: 0.95 }}
               animate={inView ? { opacity: 1, y: 0, scale: 1 } : {}}
               transition={{ duration: 0.55, delay: i * 0.1, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
-              whileHover={isPreview ? {} : { y: -8 }}
+              whileHover={isPreview ? {} : {
+                y: -10,
+                boxShadow: tier.highlighted
+                  ? `0 20px 60px rgba(${rgb}, 0.3), 0 0 0 1.5px rgba(${rgb}, 0.5)`
+                  : `0 12px 40px rgba(0,0,0,0.4)`,
+              }}
               className="relative rounded-2xl p-6 flex flex-col gap-5 transition-shadow duration-300 glass"
               style={tier.highlighted ? {
                 background: `linear-gradient(to bottom, rgba(${rgb}, 0.12), rgba(${rgb}, 0.05))`,
@@ -69,12 +90,12 @@ export function PricingBlock({ content, theme, isPreview }: PricingBlockProps) {
 
               <div>
                 <h3 className="text-lg font-semibold text-white mb-1">{tier.name}</h3>
-                <p className="text-gray-400 text-sm">{tier.description}</p>
+                <p className="text-gray-300 text-sm">{tier.description}</p>
               </div>
 
               <div className="flex items-baseline gap-1">
                 <span className="text-4xl font-bold text-white">{tier.price}</span>
-                {tier.period && <span className="text-gray-400">{tier.period}</span>}
+                {tier.period && <span className="text-gray-300">{tier.period}</span>}
               </div>
 
               <ul className="flex flex-col gap-2.5 flex-1">
@@ -84,7 +105,7 @@ export function PricingBlock({ content, theme, isPreview }: PricingBlockProps) {
                     initial={isPreview ? false : { opacity: 0, x: -10 }}
                     animate={inView ? { opacity: 1, x: 0 } : {}}
                     transition={{ delay: 0.3 + i * 0.1 + j * 0.04 }}
-                    className="flex items-center gap-2 text-sm text-gray-300"
+                    className="flex items-center gap-2 text-sm text-gray-200"
                   >
                     <Check className="h-4 w-4 shrink-0" style={{ color: primary }} />
                     {f}
@@ -93,7 +114,7 @@ export function PricingBlock({ content, theme, isPreview }: PricingBlockProps) {
               </ul>
 
               <motion.button
-                whileHover={isPreview ? {} : { scale: 1.02 }}
+                whileHover={isPreview ? {} : { scale: 1.03 }}
                 whileTap={isPreview ? {} : { scale: 0.98 }}
                 className="w-full py-2.5 rounded-xl font-semibold text-sm transition-all text-white"
                 style={tier.highlighted

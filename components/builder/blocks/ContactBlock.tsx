@@ -30,6 +30,8 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
     ? `https://wa.me/${content.whatsapp.replace(/\D/g, '')}`
     : null;
 
+  const words = content.headline.split(' ');
+
   return (
     <section className="py-24 px-6" style={{ background: 'linear-gradient(180deg, #0a0a0f 0%, #0d0d1a 100%)' }} ref={ref}>
       <div className="max-w-5xl mx-auto">
@@ -40,8 +42,22 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
             transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] as [number,number,number,number] }}
           >
             <div className="inline-block w-12 h-1 rounded-full mb-6" style={{ backgroundColor: primary }} />
-            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">{content.headline}</h2>
-            {content.subheadline && <p className="text-gray-400 mb-8">{content.subheadline}</p>}
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
+              {isPreview
+                ? content.headline
+                : words.map((word, i) => (
+                    <motion.span
+                      key={i}
+                      initial={{ opacity: 0, y: 25, filter: 'blur(5px)' }}
+                      animate={inView ? { opacity: 1, y: 0, filter: 'blur(0px)' } : {}}
+                      transition={{ duration: 0.55, delay: i * 0.07, ease: [0.16, 1, 0.3, 1] }}
+                      className="inline-block mr-[0.25em]"
+                    >
+                      {word}
+                    </motion.span>
+                  ))}
+            </h2>
+            {content.subheadline && <p className="text-gray-300 mb-8">{content.subheadline}</p>}
 
             <div className="flex flex-col gap-4 mb-8">
               {content.email && (
@@ -50,7 +66,7 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
                   initial={isPreview ? false : { opacity: 0, x: -15 }}
                   animate={inView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: 0.15 }}
-                  className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors group"
+                  className="flex items-center gap-3 text-gray-200 hover:text-white transition-colors group"
                 >
                   <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `rgba(${rgb}, 0.15)` }}>
                     <Mail className="h-4 w-4" style={{ color: primary }} />
@@ -64,7 +80,7 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
                   initial={isPreview ? false : { opacity: 0, x: -15 }}
                   animate={inView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: 0.2 }}
-                  className="flex items-center gap-3 text-gray-300 hover:text-white transition-colors"
+                  className="flex items-center gap-3 text-gray-200 hover:text-white transition-colors"
                 >
                   <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0" style={{ backgroundColor: `rgba(${rgb}, 0.15)` }}>
                     <Phone className="h-4 w-4" style={{ color: primary }} />
@@ -77,7 +93,7 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
                   initial={isPreview ? false : { opacity: 0, x: -15 }}
                   animate={inView ? { opacity: 1, x: 0 } : {}}
                   transition={{ delay: 0.25 }}
-                  className="flex items-start gap-3 text-gray-300"
+                  className="flex items-start gap-3 text-gray-200"
                 >
                   <div className="h-9 w-9 rounded-lg flex items-center justify-center shrink-0 mt-0.5" style={{ backgroundColor: `rgba(${rgb}, 0.15)` }}>
                     <MapPin className="h-4 w-4" style={{ color: primary }} />
@@ -87,7 +103,6 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
               )}
             </div>
 
-            {/* WhatsApp CTA */}
             {whatsappUrl && (
               <motion.a
                 href={whatsappUrl}
@@ -96,7 +111,7 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
                 initial={isPreview ? false : { opacity: 0, y: 15 }}
                 animate={inView ? { opacity: 1, y: 0 } : {}}
                 transition={{ delay: 0.35 }}
-                whileHover={isPreview ? {} : { scale: 1.03 }}
+                whileHover={isPreview ? {} : { scale: 1.03, y: -2 }}
                 className="inline-flex items-center gap-2.5 px-5 py-3 rounded-xl bg-green-600/20 border border-green-500/30 text-green-300 hover:bg-green-600/30 transition-all font-medium"
               >
                 <MessageCircle className="h-5 w-5" />
@@ -104,7 +119,6 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
               </motion.a>
             )}
 
-            {/* Google Maps embed */}
             {content.mapsUrl && (
               <motion.div
                 initial={isPreview ? false : { opacity: 0, y: 20 }}
@@ -134,16 +148,16 @@ export function ContactBlock({ content, theme, isPreview }: ContactBlockProps) {
             >
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-300 mb-1.5 block">Nom</label>
+                  <label className="text-sm text-gray-200 mb-1.5 block">Nom</label>
                   <input className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 transition-all" style={{ '--tw-ring-color': `rgba(${rgb}, 0.4)` } as React.CSSProperties} placeholder="Votre nom" readOnly={isPreview} />
                 </div>
                 <div>
-                  <label className="text-sm text-gray-300 mb-1.5 block">E-mail</label>
+                  <label className="text-sm text-gray-200 mb-1.5 block">E-mail</label>
                   <input className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 transition-all" placeholder="votre@email.com" readOnly={isPreview} />
                 </div>
               </div>
               <div>
-                <label className="text-sm text-gray-300 mb-1.5 block">Message</label>
+                <label className="text-sm text-gray-200 mb-1.5 block">Message</label>
                 <textarea className="w-full rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 py-2 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 resize-none" rows={4} placeholder="Votre message..." readOnly={isPreview} />
               </div>
               <motion.button

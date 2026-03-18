@@ -3,36 +3,17 @@
 import * as React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
-import type { Site, SiteBlock, DemoLink, BlockType, SiteStatus } from '@/lib/types';
-import { BuilderCanvas } from '@/components/builder/BuilderCanvas';
-import { BlockLibrary } from '@/components/builder/BlockLibrary';
-import { BlockEditor } from '@/components/builder/BlockEditor';
+import { motion } from 'framer-motion';
+import type { Site, DemoLink, SiteStatus } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/components/ui/toast';
 import { createClient } from '@/lib/supabase/client';
-import { generateId, generateToken, isLinkExpired } from '@/lib/utils';
+import { generateToken, isLinkExpired } from '@/lib/utils';
 import {
-  Save, Eye, EyeOff, ChevronLeft, Share2, Plus, Layers,
-  Pencil, Settings, Link2, Copy, Trash2
+  Save, ChevronLeft, Share2, Settings, Link2, Copy, Trash2, Eye, ExternalLink, UtensilsCrossed
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { ImportReviewsModal } from '@/components/builder/ImportReviewsModal';
-import { Star } from 'lucide-react';
-
-// Default content for each block type
-const DEFAULT_BLOCK_CONTENT: Record<BlockType, object> = {
-  hero: { headline: 'Votre Titre Ici', subheadline: 'Décrivez votre offre en une phrase.', ctaText: 'Nous contacter', badge: '', variant: 'centered' },
-  features: { headline: 'Nos services', subheadline: '', features: [{ icon: '✨', title: 'Service 1', description: 'Décrivez ce service.' }], columns: 3, variant: 'grid' },
-  about: { headline: 'Notre histoire', text: 'Parlez de votre entreprise, vos valeurs, ce qui vous rend unique.', variant: 'centered' },
-  gallery: { headline: 'Galerie', subheadline: '', photos: [], columns: 3 },
-  stats: { headline: null, stats: [{ value: '10', suffix: '+', label: 'Années d\'expérience' }, { value: '99', suffix: '%', label: 'Clients satisfaits' }, { value: '500', suffix: '+', label: 'Projets réalisés' }, { value: '4.9', suffix: '★', label: 'Note moyenne' }] },
-  testimonials: { headline: 'Ce que disent nos clients', testimonials: [{ name: 'Marie D.', role: 'Cliente', company: 'Ville', quote: 'Excellent service !', rating: 5 }], variant: 'cards' },
-  pricing: { headline: 'Nos offres', tiers: [{ name: 'Essentiel', price: 'Sur devis', description: 'Pour démarrer.', features: ['Service 1', 'Service 2'], ctaText: 'Demander un devis' }], variant: 'cards' },
-  contact: { headline: 'Nous contacter', subheadline: 'On vous répond rapidement.', showForm: true, variant: 'split' },
-  footer: { companyName: 'Mon entreprise', tagline: 'Votre slogan ici.', copyright: `© ${new Date().getFullYear()} Tous droits réservés.`, variant: 'minimal' },
-};
 
 const STATUS_OPTIONS: { value: SiteStatus; label: string }[] = [
   { value: 'draft', label: 'Brouillon' },
@@ -51,53 +32,13 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
 
   const [site, setSite] = React.useState<Site>(initialSite);
   const [demoLinks, setDemoLinks] = React.useState<DemoLink[]>(initialDemoLinks);
-  const [selectedBlockId, setSelectedBlockId] = React.useState<string | null>(null);
-  const [previewMode, setPreviewMode] = React.useState(false);
   const [saving, setSaving] = React.useState(false);
-  const [panel, setPanel] = React.useState<'blocks' | 'edit' | 'settings'>('blocks');
-  const [showImportReviews, setShowImportReviews] = React.useState(false);
   const [showDemoDialog, setShowDemoDialog] = React.useState(false);
+  const [showSettings, setShowSettings] = React.useState(false);
   const [creatingLink, setCreatingLink] = React.useState(false);
   const [hasChanges, setHasChanges] = React.useState(false);
-  const [sidebarOpen, setSidebarOpen] = React.useState(true);
-
-  const selectedBlock = site.blocks.find(b => b.id === selectedBlockId) ?? null;
 
   function markChanged() { setHasChanges(true); }
-
-  function addBlock(type: BlockType) {
-    const newBlock: SiteBlock = {
-      id: generateId(),
-      type,
-      content: DEFAULT_BLOCK_CONTENT[type] as SiteBlock['content'],
-      order: site.blocks.length,
-    };
-    setSite(prev => ({ ...prev, blocks: [...prev.blocks, newBlock] }));
-    setSelectedBlockId(newBlock.id);
-    setPanel('edit');
-    markChanged();
-  }
-
-  function updateBlock(updated: SiteBlock) {
-    setSite(prev => ({ ...prev, blocks: prev.blocks.map(b => b.id === updated.id ? updated : b) }));
-    markChanged();
-  }
-
-  function deleteBlock(id: string) {
-    setSite(prev => ({ ...prev, blocks: prev.blocks.filter(b => b.id !== id) }));
-    if (selectedBlockId === id) setSelectedBlockId(null);
-    markChanged();
-  }
-
-  function reorderBlocks(blocks: SiteBlock[]) {
-    setSite(prev => ({ ...prev, blocks }));
-    markChanged();
-  }
-
-  function selectBlock(id: string) {
-    setSelectedBlockId(id);
-    setPanel('edit');
-  }
 
   async function handleSave() {
     setSaving(true);
@@ -105,8 +46,6 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
     const { error } = await supabase
       .from('sites')
       .update({
-        blocks: site.blocks,
-        theme: site.theme,
         status: site.status,
         name: site.name,
         updated_at: new Date().toISOString(),
@@ -163,192 +102,124 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
     published: 'success',
   };
 
-  return (
-    <div className="h-[calc(100vh-3.5rem)] flex overflow-hidden">
-      {/* Left sidebar */}
-      <AnimatePresence>
-        {sidebarOpen && (
-          <motion.aside
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 280, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            className="h-full border-r border-[var(--border)] bg-[var(--card)] flex flex-col overflow-hidden"
-            style={{ minWidth: 0 }}
-          >
-            {/* Sidebar tabs */}
-            <div className="flex border-b border-[var(--border)]">
-              {([
-                { id: 'blocks', icon: Plus, label: 'Ajouter' },
-                { id: 'edit', icon: Pencil, label: 'Modifier' },
-                { id: 'settings', icon: Settings, label: 'Réglages' },
-              ] as const).map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setPanel(tab.id)}
-                  className={`flex-1 py-2.5 flex flex-col items-center gap-1 text-xs transition-colors ${
-                    panel === tab.id
-                      ? 'text-purple-400 border-b-2 border-purple-500'
-                      : 'text-gray-400 hover:text-white'
-                  }`}
-                >
-                  <tab.icon className="h-4 w-4" />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-4">
-              {panel === 'blocks' && (
-                <>
-                  <BlockLibrary onAddBlock={addBlock} />
-                  <div className="mt-4 pt-4 border-t border-[var(--border)]">
-                    <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-2">Importer</p>
-                    <button
-                      onClick={() => setShowImportReviews(true)}
-                      className="flex items-center gap-3 p-3 rounded-lg border border-[var(--border)] hover:border-amber-500/50 hover:bg-amber-500/5 text-left transition-all group w-full"
-                    >
-                      <span className="text-2xl">⭐</span>
-                      <div>
-                        <div className="text-sm font-medium text-white group-hover:text-amber-300 transition-colors">Importer des avis</div>
-                        <div className="text-xs text-gray-400">Coller des avis Google / Trustpilot</div>
-                      </div>
-                    </button>
-                  </div>
-                </>
-              )}
-
-              {panel === 'edit' && selectedBlock ? (
-                <div>
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="h-6 w-6 rounded bg-purple-600/20 flex items-center justify-center">
-                      <Pencil className="h-3.5 w-3.5 text-purple-400" />
-                    </div>
-                    <span className="text-sm font-medium text-white capitalize">Bloc {selectedBlock.type}</span>
-                  </div>
-                  <BlockEditor
-                    block={selectedBlock}
-                    onChange={updated => updateBlock(updated)}
-                  />
-                </div>
-              ) : panel === 'edit' ? (
-                <div className="text-center text-gray-400 py-8">
-                  <Layers className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                  <p className="text-sm">Cliquez sur un bloc pour le modifier</p>
-                </div>
-              ) : null}
-
-              {panel === 'settings' && (
-                <div className="flex flex-col gap-4">
-                  <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-1">Paramètres du site</p>
-
-                  <div>
-                    <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Nom du site</label>
-                    <input
-                      className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
-                      value={site.name}
-                      onChange={e => { setSite(prev => ({ ...prev, name: e.target.value })); markChanged(); }}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Statut</label>
-                    <div className="flex flex-col gap-2">
-                      {STATUS_OPTIONS.map(opt => (
-                        <button
-                          key={opt.value}
-                          onClick={() => handleStatusChange(opt.value)}
-                          className={`px-3 py-2 rounded-lg border text-sm text-left transition-all ${
-                            site.status === opt.value
-                              ? 'border-purple-500 bg-purple-500/10 text-white'
-                              : 'border-[var(--border)] text-gray-400 hover:border-purple-500/30'
-                          }`}
-                        >
-                          {opt.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="pt-2">
-                    <p className="text-xs text-gray-400 uppercase tracking-wider font-medium mb-2">Liens de démo</p>
-                    <Button variant="outline" size="sm" className="w-full" onClick={() => setShowDemoDialog(true)}>
-                      <Link2 className="h-4 w-4" />
-                      Gérer les liens de démo
-                    </Button>
-                    {demoLinks.filter(l => !isLinkExpired(l.expires_at)).length > 0 && (
-                      <p className="text-xs text-purple-400 mt-2 text-center">
-                        {demoLinks.filter(l => !isLinkExpired(l.expires_at)).length} lien(s) actif(s)
-                      </p>
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
-          </motion.aside>
-        )}
-      </AnimatePresence>
-
-      {/* Main canvas area */}
-      <div className="flex-1 flex flex-col min-w-0">
-        {/* Editor toolbar */}
-        <div className="h-12 border-b border-[var(--border)] bg-[var(--card)] flex items-center px-3 gap-2 shrink-0">
-          <button
-            onClick={() => setSidebarOpen(prev => !prev)}
-            className="p-1.5 text-gray-400 hover:text-white transition-colors"
-          >
-            <Layers className="h-4 w-4" />
-          </button>
-
-          <Link href="/dashboard">
-            <button className="p-1.5 text-gray-400 hover:text-white transition-colors">
-              <ChevronLeft className="h-4 w-4" />
-            </button>
-          </Link>
-
-          <span className="text-sm font-medium text-white truncate max-w-32">{site.name}</span>
-          <Badge variant={STATUS_COLORS[site.status] as 'secondary' | 'warning' | 'success'} className="text-xs">
-            {site.status.replace('_', ' ')}
-          </Badge>
-
-          <div className="flex-1" />
-
-          <button
-            onClick={() => setPreviewMode(prev => !prev)}
-            className={`p-1.5 rounded-lg transition-colors text-sm flex items-center gap-1.5 ${
-              previewMode ? 'bg-purple-600/20 text-purple-400' : 'text-gray-400 hover:text-white'
-            }`}
-          >
-            {previewMode ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            <span className="hidden sm:inline">{previewMode ? 'Modifier' : 'Aperçu'}</span>
-          </button>
-
-          <button
-            onClick={() => setShowDemoDialog(true)}
-            className="p-1.5 text-gray-400 hover:text-purple-400 transition-colors"
-            title="Demo Links"
-          >
-            <Share2 className="h-4 w-4" />
-          </button>
-
-          <Button size="sm" onClick={handleSave} loading={saving} disabled={!hasChanges}>
-            <Save className="h-3.5 w-3.5" />
-            {hasChanges ? 'Sauvegarder*' : 'Sauvegardé'}
-          </Button>
-        </div>
-
-        {/* Canvas */}
-        <div className="flex-1 overflow-y-auto">
-          <BuilderCanvas
-            blocks={site.blocks}
-            theme={site.theme}
-            selectedBlockId={selectedBlockId}
-            onSelectBlock={selectBlock}
-            onReorder={reorderBlocks}
-            onDeleteBlock={deleteBlock}
-            previewMode={previewMode}
-          />
+  if (!site.html) {
+    return (
+      <div className="min-h-screen gradient-bg flex items-center justify-center px-4">
+        <div className="glass rounded-2xl p-8 max-w-md w-full text-center">
+          <p className="text-gray-400">Ce site utilise l&apos;ancien format et ne peut pas être modifié.</p>
+          <p className="text-sm text-gray-500 mt-2">Veuillez créer un nouveau site.</p>
         </div>
       </div>
+    );
+  }
+
+  return (
+    <div className="h-[calc(100vh-3.5rem)] flex flex-col overflow-hidden">
+      {/* Editor toolbar */}
+      <div className="h-14 border-b border-[var(--border)] bg-[var(--card)] flex items-center px-4 gap-3 shrink-0">
+        <Link href="/dashboard">
+          <button className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5">
+            <ChevronLeft className="h-5 w-5" />
+          </button>
+        </Link>
+
+        <span className="text-base font-semibold text-white truncate max-w-xs">{site.name}</span>
+        <Badge variant={STATUS_COLORS[site.status] as 'secondary' | 'warning' | 'success'} className="text-xs">
+          {site.status.replace('_', ' ')}
+        </Badge>
+
+        <div className="flex-1" />
+
+        {site.menu_html && (
+          <a
+            href={`/sites/${site.id}/menu`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-2 text-gray-400 hover:text-orange-400 transition-colors rounded-lg hover:bg-orange-500/10"
+            title="Voir le menu"
+          >
+            <UtensilsCrossed className="h-5 w-5" />
+          </a>
+        )}
+
+        <button
+          onClick={() => setShowSettings(true)}
+          className="p-2 text-gray-400 hover:text-white transition-colors rounded-lg hover:bg-white/5"
+          title="Paramètres"
+        >
+          <Settings className="h-5 w-5" />
+        </button>
+
+        <button
+          onClick={() => setShowDemoDialog(true)}
+          className="p-2 text-gray-400 hover:text-orange-400 transition-colors rounded-lg hover:bg-orange-500/10"
+          title="Liens de démo"
+        >
+          <Share2 className="h-5 w-5" />
+        </button>
+
+        <Button size="sm" onClick={handleSave} loading={saving} disabled={!hasChanges}>
+          <Save className="h-4 w-4" />
+          {hasChanges ? 'Sauvegarder*' : 'Sauvegardé'}
+        </Button>
+      </div>
+
+      {/* Preview iframe */}
+      <div className="flex-1 overflow-hidden bg-gray-50">
+        <iframe
+          srcDoc={(() => {
+            let html = site.html;
+            if (site.menu_html) {
+              const menuUrl = `/sites/${site.id}/menu`;
+              html = html.replace(/#menu-link/g, menuUrl);
+              html = html.replace(/#menu-placeholder/g, menuUrl);
+            }
+            return html;
+          })()}
+          className="w-full h-full border-0"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+          title={`Preview of ${site.name}`}
+        />
+      </div>
+
+      {/* Settings Dialog */}
+      <Dialog open={showSettings} onOpenChange={setShowSettings}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Paramètres du site</DialogTitle>
+            <DialogDescription>Modifier le nom et le statut</DialogDescription>
+          </DialogHeader>
+          <div className="flex flex-col gap-4 mt-4">
+            <div>
+              <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Nom du site</label>
+              <input
+                className="w-full h-10 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-[var(--ring)]"
+                value={site.name}
+                onChange={e => { setSite(prev => ({ ...prev, name: e.target.value })); markChanged(); }}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-[var(--foreground)] mb-1.5 block">Statut</label>
+              <div className="flex flex-col gap-2">
+                {STATUS_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => handleStatusChange(opt.value)}
+                    className={`px-3 py-2 rounded-lg border text-sm text-left transition-all ${
+                      site.status === opt.value
+                        ? 'border-orange-500 bg-orange-500/10 text-white'
+                        : 'border-[var(--border)] text-gray-400 hover:border-orange-500/30'
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Demo Links Dialog */}
       <Dialog open={showDemoDialog} onOpenChange={setShowDemoDialog}>
@@ -379,13 +250,13 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
                         <p className="text-xs text-gray-400 font-mono truncate">/preview/{link.token}</p>
                       </div>
                       <div className="flex gap-1">
-                        <button onClick={() => copyLink(link.token)} className="p-1.5 text-gray-400 hover:text-white transition-colors">
+                        <button onClick={() => copyLink(link.token)} className="p-1.5 text-gray-400 hover:text-white transition-colors" title="Copier le lien">
                           <Copy className="h-3.5 w-3.5" />
                         </button>
-                        <a href={`/preview/${link.token}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-white transition-colors">
+                        <a href={`/preview/${link.token}`} target="_blank" rel="noopener noreferrer" className="p-1.5 text-gray-400 hover:text-white transition-colors" title="Voir">
                           <Eye className="h-3.5 w-3.5" />
                         </a>
-                        <button onClick={() => deleteDemoLink(link.id)} className="p-1.5 text-gray-400 hover:text-red-400 transition-colors">
+                        <button onClick={() => deleteDemoLink(link.id)} className="p-1.5 text-gray-400 hover:text-red-400 transition-colors" title="Supprimer">
                           <Trash2 className="h-3.5 w-3.5" />
                         </button>
                       </div>
@@ -397,22 +268,6 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
           </div>
         </DialogContent>
       </Dialog>
-
-      {/* Import Reviews Modal */}
-      <ImportReviewsModal
-        open={showImportReviews}
-        onClose={() => setShowImportReviews(false)}
-        existingBlock={site.blocks.find(b => b.type === 'testimonials') ?? null}
-        onImport={(block: SiteBlock) => {
-          const exists = site.blocks.find(b => b.type === 'testimonials');
-          if (exists) {
-            updateBlock(block);
-          } else {
-            setSite((prev: Site) => ({ ...prev, blocks: [...prev.blocks, { ...block, order: prev.blocks.length }] }));
-          }
-          markChanged();
-        }}
-      />
     </div>
   );
 }

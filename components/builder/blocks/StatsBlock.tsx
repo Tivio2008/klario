@@ -47,7 +47,7 @@ function AnimatedStat({ item, trigger, isPreview, primary }: { item: StatItem; t
         {display}
         {item.suffix && <span style={{ color: primary }}>{item.suffix}</span>}
       </div>
-      <div className="text-gray-400 text-sm font-medium uppercase tracking-wider">{item.label}</div>
+      <div className="text-gray-300 text-sm font-medium uppercase tracking-wider">{item.label}</div>
     </div>
   );
 }
@@ -76,7 +76,7 @@ export function StatsBlock({ content, theme, isPreview }: StatsBlockProps) {
             className="text-center mb-14"
           >
             {content.headline && <h2 className="text-4xl font-bold text-white mb-3">{content.headline}</h2>}
-            {content.subheadline && <p className="text-gray-400">{content.subheadline}</p>}
+            {content.subheadline && <p className="text-gray-300">{content.subheadline}</p>}
           </motion.div>
         )}
 

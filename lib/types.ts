@@ -45,7 +45,7 @@ export interface AboutContent {
   headline: string;
   text: string;
   imageUrl?: string;
-  highlights?: Array<{ icon: string; label: string }>;
+  highlights?: Array<{ icon?: string; iconName?: string; label: string }>;
   variant?: 'split' | 'centered';
 }
 
@@ -149,8 +149,10 @@ export interface Site {
   slug: string;
   template: SiteTemplate;
   status: SiteStatus;
-  blocks: SiteBlock[];
-  theme: SiteTheme;
+  blocks?: SiteBlock[]; // Legacy: for old block-based sites
+  theme?: SiteTheme;     // Legacy: for old block-based sites
+  html?: string;         // New: single HTML file generation
+  menu_html?: string;    // Optional: restaurant menu page
   created_at: string;
   updated_at: string;
 }

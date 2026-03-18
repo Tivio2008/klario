@@ -87,7 +87,7 @@ function FeaturesEditor({ content, update, block, onChange }: {
   }
 
   function addFeature() {
-    const features = [...content.features, { icon: '✨', title: 'New Feature', description: 'Feature description.' }];
+    const features = [...content.features, { iconName: 'star', title: 'New Feature', description: 'Feature description.' }];
     onChange({ ...block, content: { ...content, features } });
   }
 
@@ -115,7 +115,7 @@ function FeaturesEditor({ content, update, block, onChange }: {
                   <Trash2 className="h-3.5 w-3.5" />
                 </button>
               </div>
-              <Input placeholder="Icône (emoji)" value={f.icon} onChange={e => updateFeature(i, 'icon', e.target.value)} />
+              <Input placeholder="Icône (ex: star, heart, zap)" value={f.iconName || ''} onChange={e => updateFeature(i, 'iconName', e.target.value)} />
               <Input placeholder="Titre" value={f.title} onChange={e => updateFeature(i, 'title', e.target.value)} />
               <Textarea placeholder="Description" value={f.description} onChange={e => updateFeature(i, 'description', e.target.value)} className="min-h-[60px]" />
             </div>
