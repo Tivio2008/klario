@@ -58,6 +58,7 @@ export async function POST(req: NextRequest) {
     const systemPrompt = `You are a web designer. Create complete, beautiful single-page websites. Extract real contact info from descriptions. Write all content in the same language as the input. Use inline CSS and JS only.`;
 
     const userPrompt = `Business: ${data.prompt}
+${data.logoUrl ? `\nLogo URL: ${data.logoUrl}` : ''}
 ${hasReviews ? `\nReviews: ${data.reviews}` : ''}
 ${hasPhotos ? `\nPhotos: ${JSON.stringify(data.photoUrls)}` : ''}
 
@@ -65,35 +66,63 @@ Create a COMPLETE HTML website with ALL these sections filled with content:
 
 1. Full HTML structure: <!DOCTYPE html>, <html>, <head> with meta tags and title, <style> with all CSS, <body>, <script> if needed, closing </body></html>
 
-2. Navigation bar: business name, menu links (Accueil, À propos, Services, Contact)
+2. Navigation bar:
+   ${data.logoUrl ? `- Display logo as <img src="${data.logoUrl}"> (max height 50px) instead of text name` : '- Business name as text'}
+   - Menu links (Accueil, À propos, Services, Contact)
 
 3. Hero section:
    - Large headline about the business
    - Subheadline describing what they do
-   - CTA button with tel: link (extract real phone from description, NOT 077...)
+   - Background image from Unsplash based on business type:
+     * Restaurant/Italian: https://images.unsplash.com/photo-1555396273-367ea4eb4db5
+     * Café/Coffee: https://images.unsplash.com/photo-1511920170033-f8396924c348
+     * Bakery: https://images.unsplash.com/photo-1509440159596-0249088772ff
+     * Salon/Beauty: https://images.unsplash.com/photo-1560066984-138dadb4c035
+     * Gym/Fitness: https://images.unsplash.com/photo-1534438327276-14e5300c3a48
+     * Shop/Store: https://images.unsplash.com/photo-1441986300917-64674bd600d8
+   - CTA button "Réserver" (for restaurants) or "Contacter" that opens modal
 
-4. About section:
+4. Reservation Modal (for restaurants/cafés/salons):
+   - Modal overlay with form (hidden by default, shown when CTA clicked)
+   - Form fields: Nom, Email, Téléphone, Date, Heure, Nombre de personnes, Message
+   - Submit button that uses mailto: with extracted email
+   - JavaScript to show/hide modal on button click
+   - Example mailto: "mailto:email@example.com?subject=Réservation&body=Nom:%20...Date:%20..."
+
+5. About section:
    - Section title
    - 2-3 paragraphs telling the story of the business
    - What makes them unique
+   - 2-3 photos from Unsplash matching business type (pasta, pizza, products, etc.)
 
-5. Services/Specialties section:
+6. Services/Specialties section:
    - Section title
    - Grid of 4-6 services/products with icons, names, and descriptions
+   - Use real Unsplash photos for each service if available
 
-6. Contact section:
+7. Client Reviews section:
+   - Section title "Avis de nos clients" or similar
+   - 3 review cards with:
+     * 5 golden stars (★★★★★ in yellow/gold color)
+     * Client name (realistic, matching region)
+     * Realistic testimonial (2-3 sentences) specific to the business type
+     * Date (recent, like "Il y a 2 semaines")
+
+8. Contact section:
    - Section title
    - Real phone number extracted from description (format: +41 XX XXX XX XX)
    - Real email if mentioned
    - Real address if mentioned
    - Opening hours if mentioned
-   - Contact form with fields
+   - Contact form with fields (Nom, Email, Message)
 
-7. Footer: business name, copyright, social media links
+9. Footer: business name, copyright, social media links
 
 IMPORTANT:
 - Generate COMPLETE content for EVERY section - no placeholders, no empty divs
 - Extract and use REAL contact info from the description
+- Use Unsplash images with direct URLs matching the business type
+- Include working reservation modal with mailto: functionality
 - Beautiful, modern design with colors, spacing, animations
 - Mobile responsive layout
 - Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
