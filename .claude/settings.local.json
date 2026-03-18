@@ -72,7 +72,8 @@
       "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); print\\(data[0][''''text'''']\\)\")",
       "Bash(jobs:*)",
       "Bash(pkill:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(grep -n -i \"prompt\\\\|edit.*html\\\\|modify\" C:/klario/app/\\\\\\(dashboard\\\\\\)/sites/[id]/edit/EditorClient.tsx)"
     ]
   }
 }
