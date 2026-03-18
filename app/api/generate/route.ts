@@ -30,6 +30,28 @@ export async function POST(req: NextRequest) {
     console.log('Starting HTML generation with Claude Opus 4.6...');
     console.log('Prompt length:', data.prompt.length);
 
+    // Retry helper for 529 errors
+    async function retryWithBackoff<T>(
+      fn: () => Promise<T>,
+      maxRetries = 3,
+      delayMs = 5000
+    ): Promise<T> {
+      for (let attempt = 1; attempt <= maxRetries; attempt++) {
+        try {
+          return await fn();
+        } catch (err: any) {
+          const is529 = err?.status === 529 || err?.message?.includes('529') || err?.message?.includes('overloaded');
+          if (is529 && attempt < maxRetries) {
+            console.log(`Attempt ${attempt} failed (529 overloaded), retrying in ${delayMs}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delayMs));
+            continue;
+          }
+          throw err;
+        }
+      }
+      throw new Error('Max retries exceeded');
+    }
+
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
@@ -53,12 +75,14 @@ Create a complete single-file website with:
 
 Return ONLY the complete HTML (no markdown).`;
 
-    const message = await client.messages.create({
-      model: 'claude-opus-4-6',
-      max_tokens: 16000, // Doublé pour sites complets
-      system: systemPrompt,
-      messages: [{ role: 'user', content: userPrompt }],
-    });
+    const message = await retryWithBackoff(() =>
+      client.messages.create({
+        model: 'claude-opus-4-6',
+        max_tokens: 16000,
+        system: systemPrompt,
+        messages: [{ role: 'user', content: userPrompt }],
+      })
+    );
 
     let html = message.content[0].type === 'text' ? message.content[0].text : '';
 
@@ -100,12 +124,14 @@ IMPORTANT: All prices MUST be in CHF with the format "XX CHF" or "XX.XX CHF"
 
 Return ONLY the HTML (no markdown). Start with <!DOCTYPE html>.`;
 
-      const menuMessage = await client.messages.create({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 4000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: menuPrompt }],
-      });
+      const menuMessage = await retryWithBackoff(() =>
+        client.messages.create({
+          model: 'claude-sonnet-4-6',
+          max_tokens: 4000,
+          system: systemPrompt,
+          messages: [{ role: 'user', content: menuPrompt }],
+        })
+      );
 
       menuHtml = menuMessage.content[0].type === 'text' ? menuMessage.content[0].text.trim() : undefined;
     }
