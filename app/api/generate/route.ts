@@ -127,6 +127,7 @@ IMPORTANT:
 - Include working reservation modal with mailto: functionality
 - Beautiful, modern design with colors, spacing, animations
 - Mobile responsive layout
+- N'utilise AUCUN emoji dans le site généré. Pas d'émojis dans les titres, boutons, textes, icônes ou anywhere. Utilise uniquement du texte et des icônes CSS/SVG.
 
 INSTRUCTIONS SUPPLÉMENTAIRES:
 1. LOGO: ${data.logoUrl ? `OBLIGATOIRE - Utiliser <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px"> dans le header de navigation` : 'Utiliser le nom du business en texte dans le header'}
