@@ -208,19 +208,28 @@ export function EditorClient({ site: initialSite, initialDemoLinks }: EditorClie
       {/* Preview iframe */}
       <div className="flex-1 overflow-hidden bg-gray-50">
         <iframe
-          srcDoc={(() => {
-            let html = site.html;
-            if (site.menu_html) {
-              const menuUrl = `/sites/${site.id}/menu`;
-              html = html.replace(/#menu-link/g, menuUrl);
-              html = html.replace(/#menu-placeholder/g, menuUrl);
-            }
-            return html;
-          })()}
+          srcDoc={site.html || ''}
           className="w-full h-full border-0"
-          sandbox="allow-same-origin allow-scripts allow-forms allow-popups"
+          sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-modals"
           title={`Preview of ${site.name}`}
         />
+      </div>
+
+      {/* Quick edit bar */}
+      <div className="h-16 border-t border-[var(--border)] bg-[var(--card)] flex items-center px-4 gap-3 shrink-0">
+        <input
+          type="text"
+          placeholder="Ex: change le titre, remplace bleu par vert, ajoute une section..."
+          value={editPrompt}
+          onChange={e => setEditPrompt(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && !editing && editPrompt.trim() && handleEditWithPrompt()}
+          disabled={editing}
+          className="flex-1 h-10 rounded-lg border border-[var(--border)] bg-[var(--input)] px-3 text-sm text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+        />
+        <Button size="sm" onClick={handleEditWithPrompt} loading={editing} disabled={!editPrompt.trim()}>
+          <Wand2 className="h-4 w-4" />
+          Modifier
+        </Button>
       </div>
 
       {/* Settings Dialog */}

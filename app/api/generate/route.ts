@@ -55,24 +55,48 @@ export async function POST(req: NextRequest) {
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `Generate complete websites as single HTML files. Use real data from descriptions (phone, email, address). Write in input language. Inline CSS/JS only.`;
+    const systemPrompt = `You are a web designer. Create complete, beautiful single-page websites. Extract real contact info from descriptions. Write all content in the same language as the input. Use inline CSS and JS only.`;
 
     const userPrompt = `Business: ${data.prompt}
 ${hasReviews ? `\nReviews: ${data.reviews}` : ''}
 ${hasPhotos ? `\nPhotos: ${JSON.stringify(data.photoUrls)}` : ''}
 
-Create ONE complete HTML file with:
-- <!DOCTYPE html>, <head>, <style>, <body>, <script>
-- Nav bar with business name
-- Hero section: headline + CTA button (tel: link with real phone from description)
-- About section: 2 paragraphs about the business
-- Services section: 4 items with icons
-- Contact section: real phone/email/address from description, opening hours
-- Footer: copyright + social links
+Create a COMPLETE HTML website with ALL these sections filled with content:
 
-Use REAL contact info from description (never invent 077... numbers).
-Beautiful design, mobile responsive.
-Return ONLY HTML (no markdown).`;
+1. Full HTML structure: <!DOCTYPE html>, <html>, <head> with meta tags and title, <style> with all CSS, <body>, <script> if needed, closing </body></html>
+
+2. Navigation bar: business name, menu links (Accueil, À propos, Services, Contact)
+
+3. Hero section:
+   - Large headline about the business
+   - Subheadline describing what they do
+   - CTA button with tel: link (extract real phone from description, NOT 077...)
+
+4. About section:
+   - Section title
+   - 2-3 paragraphs telling the story of the business
+   - What makes them unique
+
+5. Services/Specialties section:
+   - Section title
+   - Grid of 4-6 services/products with icons, names, and descriptions
+
+6. Contact section:
+   - Section title
+   - Real phone number extracted from description (format: +41 XX XXX XX XX)
+   - Real email if mentioned
+   - Real address if mentioned
+   - Opening hours if mentioned
+   - Contact form with fields
+
+7. Footer: business name, copyright, social media links
+
+IMPORTANT:
+- Generate COMPLETE content for EVERY section - no placeholders, no empty divs
+- Extract and use REAL contact info from the description
+- Beautiful, modern design with colors, spacing, animations
+- Mobile responsive layout
+- Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
 
     const message = await retryWithBackoff(() =>
       client.messages.create({
