@@ -338,8 +338,15 @@ ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
 
           {step === 6 && (
             <>
-              <h2 className="text-2xl font-bold text-white mb-6">Avis clients</h2>
-              <p className="text-gray-400 mb-4">Ajoutez jusqu'à 5 avis Google Maps (optionnel)</p>
+              <div className="flex items-center gap-2 mb-6">
+                <Star className="h-6 w-6 text-amber-400 fill-amber-400" />
+                <h2 className="text-2xl font-bold text-white">Avis clients</h2>
+              </div>
+              <div className="glass rounded-xl p-4 mb-4 border border-amber-500/20 bg-amber-500/5">
+                <p className="text-amber-200 text-sm">
+                  💡 Les avis clients renforcent la confiance. Ajoutez vos meilleurs avis Google Maps ici (optionnel).
+                </p>
+              </div>
               <div className="flex flex-col gap-4">
                 {reviews.map((review, idx) => (
                   <div key={idx} className="glass rounded-xl p-4">
@@ -674,11 +681,21 @@ export default function NewSitePage() {
     setStatus('Sauvegarde...');
     const slug = generateSlug(siteName);
 
+    // Detect business type from prompt
+    const isRestaurant = /restaurant|café|bar|pizzeria|brasserie|bistro|trattoria|osteria|boulangerie|pâtisserie|food|cuisine|menu/i.test(prompt);
+    const isSalon = /salon|coiffeur|barbier|beauté|esthétique|spa|massage/i.test(prompt);
+    const isShop = /boutique|magasin|commerce|shop|store/i.test(prompt);
+
+    let template = 'restaurant'; // Default to restaurant for local businesses
+    if (isSalon) template = 'salon';
+    else if (isShop) template = 'shop';
+    else if (!isRestaurant && !isSalon && !isShop) template = 'local-business';
+
     const insertData: any = {
       user_id: user.id,
       name: siteName,
       slug,
-      template: 'saas',
+      template,
       status: 'draft',
       html,
     };

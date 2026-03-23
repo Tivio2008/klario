@@ -69,7 +69,7 @@ Create a COMPLETE HTML website with ALL these sections filled with content:
 1. Full HTML structure: <!DOCTYPE html>, <html>, <head> with meta tags and title, <style> with all CSS, <body>, <script> if needed, closing </body></html>
 
 2. Navigation bar:
-   ${data.logoUrl ? `- Display logo as <img src="${data.logoUrl}"> (max height 50px) instead of text name` : '- Business name as text'}
+   ${data.logoUrl ? `- OBLIGATOIRE: Afficher le logo avec <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain;"> à la place du nom textuel. Le logo DOIT être visible dans le header.` : '- Business name as text'}
    - Menu links (Accueil, À propos, Services, Contact)
 
 3. Hero section:
@@ -95,20 +95,22 @@ Create a COMPLETE HTML website with ALL these sections filled with content:
    - Section title
    - 2-3 paragraphs telling the story of the business
    - What makes them unique
-   ${hasPhotos ? `- Use the provided photos: ${JSON.stringify(data.photoUrls)} as <img> tags` : '- 2-3 photos from Unsplash matching business type (pasta, pizza, products, etc.)'}
+   ${hasPhotos ? `- OBLIGATOIRE: Intégrer TOUTES les photos uploadées ${JSON.stringify(data.photoUrls)} avec des balises <img src="URL" alt="..." style="width: 100%; max-width: 400px; height: auto; object-fit: cover; border-radius: 8px;"> dans cette section. Créer une galerie ou grille pour afficher toutes les photos.` : '- 2-3 photos from Unsplash matching business type (pasta, pizza, products, etc.)'}
 
 6. Services/Specialties section:
    - Section title
    - Grid of 4-6 services/products with icons, names, and descriptions
-   ${hasPhotos ? `- Use provided photos if available: ${JSON.stringify(data.photoUrls)}` : '- Use Unsplash photos for each service if needed'}
+   ${hasPhotos && data.photoUrls!.length > 3 ? `- OBLIGATOIRE: Utiliser les photos uploadées ${JSON.stringify(data.photoUrls)} pour illustrer les services avec <img> tags` : '- Use Unsplash photos for each service if needed'}
 
-7. Client Reviews section:
-   - Section title "Avis de nos clients" or similar
-   - 3 review cards with:
-     * 5 golden stars (★★★★★ in yellow/gold color)
-     * Client name (realistic, matching region)
-     * Realistic testimonial (2-3 sentences) specific to the business type
+7. Client Reviews section (OBLIGATOIRE):
+   - Section title "Avis de nos clients" or "Témoignages"
+   ${hasReviews ? `- UTILISER LES VRAIS AVIS fournis dans les reviews: "${data.reviews?.substring(0, 100)}..."` : ''}
+   - ${hasReviews ? 'Minimum 3' : '3'} review cards avec:
+     * 5 golden stars (★★★★★ in yellow/gold color #FFD700)
+     * Client name (${hasReviews ? 'utiliser les noms fournis' : 'realistic, matching region'})
+     * ${hasReviews ? 'Utiliser les commentaires exacts fournis' : 'Realistic testimonial (2-3 sentences) specific to the business type'}
      * Date (recent, like "Il y a 2 semaines")
+   - Style: cards avec fond légèrement différent, ombre, étoiles bien visibles
 
 8. Contact section:
    - Section title
@@ -130,8 +132,8 @@ IMPORTANT:
 - N'utilise AUCUN emoji dans le site généré. Pas d'émojis dans les titres, boutons, textes, icônes ou anywhere. Utilise uniquement du texte et des icônes CSS/SVG.
 
 INSTRUCTIONS SUPPLÉMENTAIRES:
-1. LOGO: ${data.logoUrl ? `OBLIGATOIRE - Utiliser <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px"> dans le header de navigation` : 'Utiliser le nom du business en texte dans le header'}
-2. PHOTOS UPLOADÉES: ${hasPhotos ? `OBLIGATOIRE - Utiliser ces photos dans le site: ${JSON.stringify(data.photoUrls)} - Les intégrer dans la galerie, section About, ou Services avec des balises <img>` : 'Utiliser des photos Unsplash si nécessaire'}
+1. LOGO: ${data.logoUrl ? `🚨 CRITIQUE - Le logo DOIT être visible dans le header: <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain; display: block;"> - Remplacer complètement le nom textuel par cette image. Vérifier que l'URL est correcte et l'image sera chargée.` : 'Utiliser le nom du business en texte dans le header'}
+2. PHOTOS UPLOADÉES: ${hasPhotos ? `🚨 CRITIQUE - TOUTES les photos suivantes DOIVENT apparaître dans le site: ${JSON.stringify(data.photoUrls)}\n   - Créer une section Galerie dédiée avec toutes les photos en grille responsive\n   - Ou intégrer les photos dans les sections About et Services\n   - Utiliser: <img src="URL_PHOTO" alt="..." style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px;">\n   - Chaque photo doit être visible et bien stylée` : 'Utiliser des photos Unsplash si nécessaire'}
 3. IMAGES Unsplash par défaut (si pas de photos uploadées):
    - Hero background: https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200
    - Pasta photo: https://images.unsplash.com/photo-1473093226555-0b7ce5efdd0e?w=600
