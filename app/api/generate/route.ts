@@ -161,6 +161,15 @@ export async function POST(req: NextRequest) {
     // Generate a unique token for this site (for menu links)
     const token = Math.random().toString(36).substring(2, 15);
 
+    // Helper to get initials
+    const getInitials = (name: string) => {
+      const parts = name.trim().split(' ');
+      if (parts.length >= 2) {
+        return (parts[0][0] + parts[1][0]).toUpperCase();
+      }
+      return name.substring(0, 2).toUpperCase();
+    };
+
     // Prepare template data
     const templateData = {
       NOM: parsedData.nom,
@@ -177,12 +186,15 @@ export async function POST(req: NextRequest) {
       PHOTO_2: hasPhotos && data.photoUrls![1] ? data.photoUrls![1] : '',
       PHOTO_3: hasPhotos && data.photoUrls![2] ? data.photoUrls![2] : '',
       AVIS_1_NOM: avis1.nom,
+      AVIS_1_NOM_INITIAL: getInitials(avis1.nom),
       AVIS_1_TEXTE: avis1.texte,
       AVIS_1_DATE: avis1.date,
       AVIS_2_NOM: avis2.nom,
+      AVIS_2_NOM_INITIAL: getInitials(avis2.nom),
       AVIS_2_TEXTE: avis2.texte,
       AVIS_2_DATE: avis2.date,
       AVIS_3_NOM: avis3.nom,
+      AVIS_3_NOM_INITIAL: getInitials(avis3.nom),
       AVIS_3_TEXTE: avis3.texte,
       AVIS_3_DATE: avis3.date,
       TOKEN: token
