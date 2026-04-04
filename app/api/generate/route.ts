@@ -57,7 +57,31 @@ export async function POST(req: NextRequest) {
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `Tu génères un site web pour un COMMERCE LOCAL (restaurant, coiffeur, boulangerie, salon, boutique, etc). Style chaleureux et humain, PAS de style startup/SaaS/tech. Utilise des vraies informations extraites de la description. Écris tout le contenu dans la même langue que l'input. CSS et JS inline uniquement.`;
+    const systemPrompt = `Tu es un expert en création de sites web pour commerces locaux. Tu génères UNIQUEMENT du code HTML/CSS complet et fonctionnel.
+
+STYLE OBLIGATOIRE:
+- Aucun emoji dans tout le HTML
+- Pas de style SaaS/startup/tech
+- Design chaleureux, humain, professionnel
+- Couleurs selon le type: restaurant=rouge/orange/crème, coiffeur=noir/or/blanc, boulangerie=beige/marron/doré
+
+SECTIONS OBLIGATOIRES DANS L'ORDRE:
+1. NAV: logo (img si logo_url fourni, sinon texte nom), liens: Accueil, A propos, Services, Contact + bouton Réserver
+2. HERO: image de fond Unsplash (restaurant: photo-1555396273-367ea4eb4db5, coiffeur: photo-1503951914875-452162b0f3f1, boulangerie: photo-1509440159596-0249088772ff), titre accrocheur, sous-titre, 2 boutons fonctionnels
+3. ABOUT: histoire du commerce, 3 points forts avec icônes SVG simples
+4. SERVICES: grille de 3-6 cartes avec titre et description, images Unsplash si disponibles
+5. AVIS: 3 avis clients avec étoiles SVG dorées, nom, commentaire (utiliser les vrais avis fournis)
+6. CONTACT: adresse, téléphone cliquable (tel:), email cliquable (mailto:), formulaire avec champs Nom/Email/Message/Téléphone/Date/Heure/Personnes qui ouvre mailto
+7. FOOTER: nom, adresse, tel, liens nav, copyright
+
+RÈGLES TECHNIQUES:
+- CSS inline dans balise style
+- Polices Google Fonts via CDN
+- Mobile responsive
+- Boutons tel: et mailto: fonctionnels avec vraies coordonnées
+- Si logo_url fourni: <img src='[logo_url]' height='50'>
+- Si photos fournies: les utiliser dans les sections services et hero
+- Retourner UNIQUEMENT le HTML complet, aucun texte avant ou après`;
 
     const userPrompt = `Business: ${data.prompt}
 ${data.logoUrl ? `\nLogo URL: ${data.logoUrl}` : ''}
