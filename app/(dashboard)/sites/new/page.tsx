@@ -66,6 +66,9 @@ interface CompleteFormData {
   businessType: string;
   city: string;
   description: string;
+  address: string;
+  openingHours: string;
+  email: string;
   services: string;
   colors: string;
   phone: string;
@@ -85,6 +88,9 @@ function CompleteMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: s
     businessType: '',
     city: '',
     description: '',
+    address: '',
+    openingHours: '',
+    email: '',
     services: '',
     colors: '',
     phone: '',
@@ -143,6 +149,9 @@ function CompleteMode({ onGenerate }: { onGenerate: (prompt: string, logoUrl?: s
 
 Nos services : ${formData.services}
 
+${formData.address ? `Adresse : ${formData.address}` : ''}
+${formData.openingHours ? `Horaires : ${formData.openingHours}` : ''}
+${formData.email ? `Email : ${formData.email}` : ''}
 ${formData.colors ? `Couleurs : ${formData.colors}` : ''}
 ${formData.phone ? `Téléphone : ${formData.phone}` : ''}
 ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
@@ -235,6 +244,35 @@ ${formData.whatsapp ? `WhatsApp : ${formData.whatsapp}` : ''}`;
                 onChange={e => setFormData(prev => ({ ...prev, description: e.target.value }))}
                 className="min-h-[200px]"
               />
+              <div>
+                <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Adresse complète</label>
+                <input
+                  type="text"
+                  className="w-full h-12 rounded-lg border border-[var(--border)] bg-[var(--input)] px-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="Rue du Commerce 12, 2300 La Chaux-de-Fonds"
+                  value={formData.address}
+                  onChange={e => setFormData(prev => ({ ...prev, address: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Horaires d'ouverture</label>
+                <textarea
+                  className="w-full min-h-[100px] rounded-lg border border-[var(--border)] bg-[var(--input)] px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-orange-500 resize-none"
+                  placeholder="Ex: Lundi-Vendredi 9h-18h, Samedi 10h-16h, Dimanche Fermé"
+                  value={formData.openingHours}
+                  onChange={e => setFormData(prev => ({ ...prev, openingHours: e.target.value }))}
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium text-[var(--foreground)] mb-2 block">Email de contact</label>
+                <input
+                  type="email"
+                  className="w-full h-12 rounded-lg border border-[var(--border)] bg-[var(--input)] px-4 text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  placeholder="contact@moncommerce.ch"
+                  value={formData.email}
+                  onChange={e => setFormData(prev => ({ ...prev, email: e.target.value }))}
+                />
+              </div>
             </>
           )}
 
