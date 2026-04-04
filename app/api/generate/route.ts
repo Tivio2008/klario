@@ -66,10 +66,21 @@ STYLE OBLIGATOIRE:
 - Couleurs selon le type: restaurant=rouge/orange/crème, coiffeur=noir/or/blanc, boulangerie=beige/marron/doré
 
 SECTIONS OBLIGATOIRES DANS L'ORDRE:
-1. NAV: logo (img si logo_url fourni, sinon texte nom), liens: Accueil, A propos, Services, Contact + bouton Réserver
-2. HERO: image de fond Unsplash (restaurant: photo-1555396273-367ea4eb4db5, coiffeur: photo-1503951914875-452162b0f3f1, boulangerie: photo-1509440159596-0249088772ff), titre accrocheur, sous-titre, 2 boutons fonctionnels
+1. NAV: logo (img si logo_url fourni, sinon texte nom), liens: Accueil, A propos, Services, Contact + bouton Réserver (+ lien "Notre Carte" pour restaurants)
+2. HERO ANIMÉ (NOUVEAU FORMAT):
+   - PAS de photo de fond de restaurant/salle
+   - Fond: gradient élégant selon le type de commerce (ex: linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%) pour restaurant italien)
+   - Centre: LOGO du commerce (si logo_url fourni: <img src="logo_url" style="max-width: 300px; height: auto; position: relative; z-index: 2;">)
+   - Animation CSS thématique autour du logo selon le type:
+     * Restaurant italien: animation de spaghetti/pâtes en CSS qui tournent en cercle autour du logo (utiliser ::before/::after et keyframes)
+     * Coiffeur: animation de ciseaux qui s'ouvrent/ferment en CSS
+     * Boulangerie: étoiles dorées qui tournent autour du logo
+     * Boutique: particules élégantes qui flottent
+   - Animation UNIQUEMENT en CSS pur avec @keyframes et pseudo-éléments, PAS de librairie externe
+   - Titre et sous-titre en dessous du logo
+   - 2 boutons fonctionnels
 3. ABOUT: histoire du commerce, 3 points forts avec icônes SVG simples
-4. SERVICES: grille de 3-6 cartes avec titre et description, images Unsplash si disponibles
+4. SERVICES: grille de 3-6 cartes avec titre et description, PHOTOS Unsplash thématiques (ex: photo de pizza, pâtes, tiramisu pour restaurant - PAS de photos de salle/restaurant)
 5. AVIS: 3 avis clients avec étoiles SVG dorées, nom, commentaire (utiliser les vrais avis fournis)
 6. CONTACT: adresse, téléphone cliquable (tel:), email cliquable (mailto:), formulaire avec champs Nom/Email/Message/Téléphone/Date/Heure/Personnes qui ouvre mailto
 7. FOOTER: nom, adresse, tel, liens nav, copyright
@@ -80,7 +91,7 @@ RÈGLES TECHNIQUES:
 - Mobile responsive
 - Boutons tel: et mailto: fonctionnels avec vraies coordonnées
 - Si logo_url fourni: <img src='[logo_url]' height='50'>
-- Si photos fournies: les utiliser dans les sections services et hero
+- Si photos fournies: les utiliser dans les sections services
 - Retourner UNIQUEMENT le HTML complet, aucun texte avant ou après`;
 
     const userPrompt = `Business: ${data.prompt}
@@ -95,18 +106,41 @@ Create a COMPLETE HTML website with ALL these sections filled with content:
 2. Navigation bar:
    ${data.logoUrl ? `- OBLIGATOIRE: Afficher le logo avec <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain;"> à la place du nom textuel. Le logo DOIT être visible dans le header.` : '- Business name as text'}
    - Menu links (Accueil, À propos, Services, Contact)
+   - POUR RESTAURANTS: Ajouter un lien "Notre Carte" qui pointe vers "#menu" ou un bouton qui dit "Voir la Carte"
 
-3. Hero section:
-   - Large headline about the business
-   - Subheadline describing what they do
-   - Background image from Unsplash based on business type:
-     * Restaurant/Italian: https://images.unsplash.com/photo-1555396273-367ea4eb4db5
-     * Café/Coffee: https://images.unsplash.com/photo-1511920170033-f8396924c348
-     * Bakery: https://images.unsplash.com/photo-1509440159596-0249088772ff
-     * Salon/Beauty: https://images.unsplash.com/photo-1560066984-138dadb4c035
-     * Gym/Fitness: https://images.unsplash.com/photo-1534438327276-14e5300c3a48
-     * Shop/Store: https://images.unsplash.com/photo-1441986300917-64674bd600d8
-   - CTA button "Réserver" (for restaurants) or "Contacter" that opens modal
+3. Hero section ANIMÉ (NOUVEAU FORMAT - CRITIQUE):
+   - PAS DE PHOTO DE FOND de restaurant/salle/cuisine
+   - Fond: Gradient élégant selon le type de commerce:
+     * Restaurant italien: linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%)
+     * Café: linear-gradient(135deg, #3B2621 0%, #C4A57B 100%)
+     * Boulangerie: linear-gradient(135deg, #D4A574 0%, #8B5A3C 100%)
+     * Coiffeur: linear-gradient(135deg, #1a1a1a 0%, #c9a84c 100%)
+     * Boutique: linear-gradient(135deg, #2c3e50 0%, #3498db 100%)
+   - AU CENTRE: ${data.logoUrl ? `LOGO du commerce <img src="${data.logoUrl}" alt="Logo" style="max-width: 300px; max-height: 300px; height: auto; width: auto; position: relative; z-index: 2; display: block; margin: 0 auto;">` : 'Nom du commerce en grand titre'}
+   - ANIMATION CSS thématique autour du logo (UNIQUEMENT CSS pur, pas de librairie):
+     * Restaurant italien: Créer 8-12 éléments de pâtes/spaghetti avec ::before/::after qui tournent en cercle autour du logo avec @keyframes rotate. Utiliser border-radius pour forme de pâtes, couleur #FFD700
+     * Coiffeur: 2 ciseaux en CSS qui s'ouvrent/ferment avec animation, positionnés de chaque côté du logo
+     * Boulangerie: 6-8 étoiles dorées (★) en CSS qui tournent lentement autour du logo
+     * Boutique: 10-15 particules circulaires qui flottent avec animation float et opacity
+   - Exemple de code pour animation de cercle:
+     ```css
+     .hero-logo-container {
+       position: relative;
+       display: inline-block;
+     }
+     .hero-logo-container::before,
+     .hero-logo-container::after {
+       content: '';
+       position: absolute;
+       animation: rotate 10s linear infinite;
+     }
+     @keyframes rotate {
+       from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
+       to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
+     }
+     ```
+   - EN DESSOUS du logo: titre accrocheur et sous-titre
+   - 2 boutons fonctionnels (Réserver, Contact)
 
 4. Reservation Modal (for restaurants/cafés/salons):
    - Modal overlay with form (hidden by default, shown when CTA clicked)
@@ -119,12 +153,17 @@ Create a COMPLETE HTML website with ALL these sections filled with content:
    - Section title
    - 2-3 paragraphs telling the story of the business
    - What makes them unique
-   ${hasPhotos ? `- OBLIGATOIRE: Intégrer TOUTES les photos uploadées ${JSON.stringify(data.photoUrls)} avec des balises <img src="URL" alt="..." style="width: 100%; max-width: 400px; height: auto; object-fit: cover; border-radius: 8px;"> dans cette section. Créer une galerie ou grille pour afficher toutes les photos.` : '- 2-3 photos from Unsplash matching business type (pasta, pizza, products, etc.)'}
+   ${hasPhotos ? `- OBLIGATOIRE: Intégrer TOUTES les photos uploadées ${JSON.stringify(data.photoUrls)} avec des balises <img src="URL" alt="..." style="width: 100%; max-width: 400px; height: auto; object-fit: cover; border-radius: 8px;"> dans cette section. Créer une galerie ou grille pour afficher toutes les photos.` : '- Si nécessaire: 1-2 photos thématiques Unsplash (produits/spécialités, PAS de salle/restaurant)'}
 
 6. Services/Specialties section:
    - Section title
    - Grid of 4-6 services/products with icons, names, and descriptions
-   ${hasPhotos && data.photoUrls!.length > 3 ? `- OBLIGATOIRE: Utiliser les photos uploadées ${JSON.stringify(data.photoUrls)} pour illustrer les services avec <img> tags` : '- Use Unsplash photos for each service if needed'}
+   ${hasPhotos && data.photoUrls!.length > 3 ? `- OBLIGATOIRE: Utiliser les photos uploadées ${JSON.stringify(data.photoUrls)} pour illustrer les services avec <img> tags` : '- PHOTOS THÉMATIQUES Unsplash pour chaque service/spécialité (UNIQUEMENT photos de produits/plats, PAS de photos de salle/restaurant):'}
+   - Exemples de photos thématiques:
+     * Restaurant italien: Pizza (photo-1565299624946-b28f40a0ae38), Pâtes (photo-1621996346565-e3dbc646d9a9), Tiramisu (photo-1571877227200-a0d98ea607e9), Risotto (photo-1476124369491-f5c6d1e46d82)
+     * Café: Cappuccino (photo-1572442388796-11668a67e53d), Croissant (photo-1555507036-ab1f4038808a), Latte (photo-1461023058943-07fcbe16d735)
+     * Boulangerie: Pain (photo-1509440159596-0249088772ff), Croissants (photo-1555507036-ab1f4038808a), Gâteaux (photo-1578985545062-69928b1d9587)
+     * Coiffeur: PAS de photo, utiliser des icônes CSS/SVG uniquement
 
 7. Client Reviews section (OBLIGATOIRE):
    - Section title "Avis de nos clients" or "Témoignages"
@@ -156,14 +195,22 @@ IMPORTANT:
 - N'utilise AUCUN emoji dans le site généré. Pas d'émojis dans les titres, boutons, textes, icônes ou anywhere. Utilise uniquement du texte et des icônes CSS/SVG.
 
 INSTRUCTIONS SUPPLÉMENTAIRES:
-1. LOGO: ${data.logoUrl ? `🚨 CRITIQUE - Le logo DOIT être visible dans le header: <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain; display: block;"> - Remplacer complètement le nom textuel par cette image. Vérifier que l'URL est correcte et l'image sera chargée.` : 'Utiliser le nom du business en texte dans le header'}
-2. PHOTOS UPLOADÉES: ${hasPhotos ? `🚨 CRITIQUE - TOUTES les photos suivantes DOIVENT apparaître dans le site: ${JSON.stringify(data.photoUrls)}\n   - Créer une section Galerie dédiée avec toutes les photos en grille responsive\n   - Ou intégrer les photos dans les sections About et Services\n   - Utiliser: <img src="URL_PHOTO" alt="..." style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px;">\n   - Chaque photo doit être visible et bien stylée` : 'Utiliser des photos Unsplash si nécessaire'}
-3. IMAGES Unsplash par défaut (si pas de photos uploadées):
-   - Hero background: https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1200
-   - Pasta photo: https://images.unsplash.com/photo-1473093226555-0b7ce5efdd0e?w=600
-   - Pizza photo: https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600
-4. RÉSERVATION: Bouton "Réserver" ouvre un modal HTML/CSS/JS avec formulaire (Nom, Email, Téléphone, Date, Heure, Nombre de personnes) qui utilise mailto: vers l'email du restaurant extrait de la description
-5. AVIS: Section avec 3 avis clients comprenant des étoiles ⭐⭐⭐⭐⭐ dorées et noms réalistes
+1. LOGO: ${data.logoUrl ? `🚨 CRITIQUE - Le logo DOIT être visible:
+   - Dans le HEADER: <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain; display: block;">
+   - Dans le HERO: <img src="${data.logoUrl}" alt="Logo" style="max-width: 300px; max-height: 300px; height: auto; width: auto; position: relative; z-index: 2; display: block; margin: 0 auto;">
+   - Remplacer complètement le nom textuel par cette image. Vérifier que l'URL est correcte et l'image sera chargée.` : 'Utiliser le nom du business en texte dans le header'}
+2. PHOTOS UPLOADÉES: ${hasPhotos ? `🚨 CRITIQUE - TOUTES les photos suivantes DOIVENT apparaître dans le site: ${JSON.stringify(data.photoUrls)}\n   - Créer une section Galerie dédiée avec toutes les photos en grille responsive\n   - Ou intégrer les photos dans les sections About et Services\n   - Utiliser: <img src="URL_PHOTO" alt="..." style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px;">\n   - Chaque photo doit être visible et bien stylée` : 'Utiliser des photos Unsplash thématiques si nécessaire (produits/plats uniquement)'}
+3. HERO ANIMÉ: 🚨 CRITIQUE
+   - PAS de photo de fond de restaurant/salle
+   - Utiliser un gradient de couleur élégant selon le type de commerce
+   - Centrer le logo (si fourni) avec animation CSS autour
+   - Animation thématique en CSS pur (voir instructions détaillées ci-dessus)
+4. PHOTOS THÉMATIQUES pour Services/Spécialités:
+   - UNIQUEMENT des photos de produits/plats/spécialités (Pizza, Pâtes, Desserts, etc.)
+   - PAS de photos de salle, restaurant, cuisine ou intérieur
+   - Exemples: photo-1565299624946-b28f40a0ae38 (Pizza), photo-1621996346565-e3dbc646d9a9 (Pâtes), photo-1571877227200-a0d98ea607e9 (Tiramisu)
+5. RÉSERVATION: Bouton "Réserver" ouvre un modal HTML/CSS/JS avec formulaire (Nom, Email, Téléphone, Date, Heure, Nombre de personnes) qui utilise mailto: vers l'email du restaurant extrait de la description
+6. AVIS: Section avec 3 avis clients comprenant des étoiles ⭐⭐⭐⭐⭐ dorées et noms réalistes
 
 Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
 
