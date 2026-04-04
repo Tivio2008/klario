@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{NOM}} - {{TYPE}} à {{VILLE}}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#1A1A1A',
+                        secondary: '#C9A84C',
+                        accent: '#F5F5F5'
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        @keyframes scissors {
+            0%, 100% { transform: rotate(-10deg); }
+            50% { transform: rotate(10deg); }
+        }
+        .scissors-left { animation: scissors 2s ease-in-out infinite; }
+        .scissors-right { animation: scissors 2s ease-in-out infinite reverse; }
+    </style>
+</head>
+<body class="font-sans text-gray-900 bg-white">
+    <nav class="fixed top-0 w-full bg-primary/95 backdrop-blur-md z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    {{#LOGO_URL}}
+                    <img src="{{LOGO_URL}}" alt="{{NOM}}" class="h-12 w-auto object-contain">
+                    {{/LOGO_URL}}
+                    {{^LOGO_URL}}
+                    <span class="text-2xl font-display font-bold text-secondary">{{NOM}}</span>
+                    {{/LOGO_URL}}
+                </div>
+                <ul class="hidden md:flex items-center space-x-8 text-white">
+                    <li><a href="#accueil" class="hover:text-secondary transition-colors">Accueil</a></li>
+                    <li><a href="#apropos" class="hover:text-secondary transition-colors">À propos</a></li>
+                    <li><a href="#services" class="hover:text-secondary transition-colors">Services</a></li>
+                    <li><a href="#contact" class="hover:text-secondary transition-colors">Contact</a></li>
+                    <li><a href="#contact" class="bg-secondary text-primary px-6 py-2 rounded-full font-semibold hover:bg-yellow-500 transition-all">Prendre RDV</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <section id="accueil" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-gray-900 to-secondary overflow-hidden">
+        <div class="absolute left-1/4 top-1/2 text-6xl text-secondary/30 scissors-left">✂</div>
+        <div class="absolute right-1/4 top-1/2 text-6xl text-secondary/30 scissors-right">✂</div>
+
+        <div class="relative z-10 text-center text-white px-6 pt-20">
+            <div class="mb-8">
+                {{#LOGO_URL}}
+                <img src="{{LOGO_URL}}" alt="{{NOM}}" class="max-w-xs mx-auto h-auto drop-shadow-2xl">
+                {{/LOGO_URL}}
+                {{^LOGO_URL}}
+                <h1 class="text-7xl font-display font-bold mb-4 drop-shadow-lg">{{NOM}}</h1>
+                {{/LOGO_URL}}
+            </div>
+            <h2 class="text-3xl md:text-4xl font-display mb-6 text-accent">{{SLOGAN}}</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto opacity-95">{{TYPE}} professionnel à {{VILLE}}</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#contact" class="bg-secondary text-primary px-8 py-4 rounded-full text-lg font-semibold hover:bg-yellow-500 transition-all transform hover:-translate-y-1 shadow-xl">Prendre rendez-vous</a>
+                <a href="#apropos" class="bg-white/10 backdrop-blur-sm text-white border-2 border-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all">Découvrir</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="apropos" class="py-20 px-6 bg-accent">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-primary mb-4">Notre Salon</h2>
+            <p class="text-center text-secondary text-xl mb-16">Excellence et savoir-faire</p>
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="space-y-6 text-lg leading-relaxed">
+                    <p>{{DESCRIPTION}}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    {{#PHOTO_1}}
+                    <img src="{{PHOTO_1}}" alt="Photo 1" class="rounded-xl shadow-lg w-full h-64 object-cover">
+                    {{/PHOTO_1}}
+                    {{#PHOTO_2}}
+                    <img src="{{PHOTO_2}}" alt="Photo 2" class="rounded-xl shadow-lg w-full h-64 object-cover">
+                    {{/PHOTO_2}}
+                </div>
+            </div>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">✨</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Expertise</h3>
+                    <p class="text-gray-600">Des coiffeurs qualifiés et passionnés</p>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">💇</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Tendances</h3>
+                    <p class="text-gray-600">Les dernières techniques et styles</p>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">🌿</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Produits Premium</h3>
+                    <p class="text-gray-600">Soins haut de gamme pour vos cheveux</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="services" class="py-20 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-primary mb-4">Nos Services</h2>
+            <p class="text-center text-secondary text-xl mb-16">Pour sublimer votre beauté</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-accent rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">✂️</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Coupe Femme</h3>
+                    <p class="text-gray-600 mb-4">Coupe personnalisée selon votre style</p>
+                </div>
+                <div class="bg-accent rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">💈</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Coupe Homme</h3>
+                    <p class="text-gray-600 mb-4">Coupe moderne ou classique</p>
+                </div>
+                <div class="bg-accent rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">🎨</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Coloration</h3>
+                    <p class="text-gray-600 mb-4">Couleur naturelle ou audacieuse</p>
+                </div>
+                <div class="bg-accent rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">💆</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Soins</h3>
+                    <p class="text-gray-600 mb-4">Traitements capillaires professionnels</p>
+                </div>
+                <div class="bg-accent rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">👰</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Coiffure Mariage</h3>
+                    <p class="text-gray-600 mb-4">Pour votre jour spécial</p>
+                </div>
+                <div class="bg-accent rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">🧔</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Barbe</h3>
+                    <p class="text-gray-600 mb-4">Taille et entretien de barbe</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="avis" class="py-20 px-6 bg-gradient-to-br from-primary to-gray-900 text-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-secondary mb-4">Avis Clients</h2>
+            <p class="text-center text-accent text-xl mb-16">Ils nous font confiance</p>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                    <div class="flex gap-1 text-secondary text-2xl mb-4">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <p class="text-lg mb-6 italic leading-relaxed">{{AVIS_1_TEXTE}}</p>
+                    <p class="font-semibold text-secondary">{{AVIS_1_NOM}}</p>
+                    <p class="text-sm text-accent">Il y a {{AVIS_1_DATE}}</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                    <div class="flex gap-1 text-secondary text-2xl mb-4">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <p class="text-lg mb-6 italic leading-relaxed">{{AVIS_2_TEXTE}}</p>
+                    <p class="font-semibold text-secondary">{{AVIS_2_NOM}}</p>
+                    <p class="text-sm text-accent">Il y a {{AVIS_2_DATE}}</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                    <div class="flex gap-1 text-secondary text-2xl mb-4">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <p class="text-lg mb-6 italic leading-relaxed">{{AVIS_3_TEXTE}}</p>
+                    <p class="font-semibold text-secondary">{{AVIS_3_NOM}}</p>
+                    <p class="text-sm text-accent">Il y a {{AVIS_3_DATE}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="contact" class="py-20 px-6 bg-accent">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-primary mb-4">Contact</h2>
+            <p class="text-center text-secondary text-xl mb-16">Prenez rendez-vous</p>
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="space-y-8">
+                    <h3 class="text-3xl font-display font-semibold text-primary">Coordonnées</h3>
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">📞</div>
+                            <div>
+                                <p class="font-semibold text-primary">Téléphone</p>
+                                <a href="tel:{{TEL}}" class="text-lg text-gray-700 hover:text-primary transition-colors">{{TEL}}</a>
+                            </div>
+                        </div>
+                        {{#EMAIL}}
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">✉️</div>
+                            <div>
+                                <p class="font-semibold text-primary">Email</p>
+                                <a href="mailto:{{EMAIL}}" class="text-lg text-gray-700 hover:text-primary transition-colors">{{EMAIL}}</a>
+                            </div>
+                        </div>
+                        {{/EMAIL}}
+                        {{#ADRESSE}}
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">📍</div>
+                            <div>
+                                <p class="font-semibold text-primary">Adresse</p>
+                                <p class="text-lg text-gray-700">{{ADRESSE}}</p>
+                            </div>
+                        </div>
+                        {{/ADRESSE}}
+                        {{#HORAIRES}}
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">🕒</div>
+                            <div>
+                                <p class="font-semibold text-primary">Horaires</p>
+                                <p class="text-lg text-gray-700 whitespace-pre-line">{{HORAIRES}}</p>
+                            </div>
+                        </div>
+                        {{/HORAIRES}}
+                    </div>
+                </div>
+                <form action="mailto:{{EMAIL}}?subject=Demande de rendez-vous" method="post" enctype="text/plain" class="bg-white rounded-xl p-8 shadow-lg space-y-4">
+                    <input type="text" name="nom" placeholder="Votre nom *" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="email" name="email" placeholder="Votre email *" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="tel" name="telephone" placeholder="Téléphone *" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="date" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="time" name="heure" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <textarea name="message" placeholder="Votre message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"></textarea>
+                    <button type="submit" class="w-full bg-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-gray-900 transition-all">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-primary text-white py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-12 mb-8">
+                <div>
+                    <h4 class="text-2xl font-display font-semibold text-secondary mb-4">{{NOM}}</h4>
+                    <p class="text-accent leading-relaxed">{{TYPE}} à {{VILLE}}</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold text-secondary mb-4">Navigation</h4>
+                    <ul class="space-y-2 text-accent">
+                        <li><a href="#accueil" class="hover:text-secondary transition-colors">Accueil</a></li>
+                        <li><a href="#apropos" class="hover:text-secondary transition-colors">À propos</a></li>
+                        <li><a href="#services" class="hover:text-secondary transition-colors">Services</a></li>
+                        <li><a href="#contact" class="hover:text-secondary transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold text-secondary mb-4">Contact</h4>
+                    <ul class="space-y-2 text-accent">
+                        <li><a href="tel:{{TEL}}" class="hover:text-secondary transition-colors">{{TEL}}</a></li>
+                        {{#EMAIL}}
+                        <li><a href="mailto:{{EMAIL}}" class="hover:text-secondary transition-colors">{{EMAIL}}</a></li>
+                        {{/EMAIL}}
+                        {{#ADRESSE}}
+                        <li>{{ADRESSE}}</li>
+                        {{/ADRESSE}}
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/20 pt-8 text-center text-accent">
+                <p>&copy; 2026 {{NOM}}. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

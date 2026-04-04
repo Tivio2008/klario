@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{NOM}} - {{TYPE}} à {{VILLE}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#8B1A1A',
+                        secondary: '#C9A84C',
+                        accent: '#FFF8E7'
+                    },
+                    fontFamily: {
+                        display: ['Playfair Display', 'serif'],
+                        sans: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        html { scroll-behavior: smooth; }
+
+        @keyframes orbit {
+            0% { transform: rotate(0deg) translateX(160px) rotate(0deg); opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { transform: rotate(360deg) translateX(160px) rotate(-360deg); opacity: 0.6; }
+        }
+
+        .hero-logo-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .hero-logo-wrapper::before,
+        .hero-logo-wrapper::after {
+            content: '';
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            background: rgba(201, 168, 76, 0.8);
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            animation: orbit 15s linear infinite;
+        }
+
+        .hero-logo-wrapper::after {
+            animation-delay: 7.5s;
+            background: rgba(255, 215, 0, 0.7);
+        }
+
+        .particle {
+            position: absolute;
+            width: 15px;
+            height: 15px;
+            background: rgba(201, 168, 76, 0.6);
+            border-radius: 50%;
+            animation: orbit 20s linear infinite;
+        }
+
+        .particle:nth-child(2) { animation-delay: 5s; width: 12px; height: 12px; }
+        .particle:nth-child(3) { animation-delay: 10s; width: 18px; height: 18px; background: rgba(255, 215, 0, 0.5); }
+        .particle:nth-child(4) { animation-delay: 15s; width: 14px; height: 14px; }
+    </style>
+</head>
+<body class="font-sans text-gray-900 bg-white">
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full bg-primary/95 backdrop-blur-md z-50 shadow-lg">
+        <div class="max-w-7xl mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center">
+                    {{#LOGO_URL}}
+                    <img src="{{LOGO_URL}}" alt="{{NOM}}" class="h-12 w-auto object-contain">
+                    {{/LOGO_URL}}
+                    {{^LOGO_URL}}
+                    <span class="text-2xl font-display font-bold text-secondary">{{NOM}}</span>
+                    {{/LOGO_URL}}
+                </div>
+                <ul class="hidden md:flex items-center space-x-8 text-white">
+                    <li><a href="#accueil" class="hover:text-secondary transition-colors">Accueil</a></li>
+                    <li><a href="#apropos" class="hover:text-secondary transition-colors">À propos</a></li>
+                    <li><a href="#specialites" class="hover:text-secondary transition-colors">Spécialités</a></li>
+                    <li><a href="/preview/{{TOKEN}}/menu" class="hover:text-secondary transition-colors">Notre Carte</a></li>
+                    <li><a href="#contact" class="hover:text-secondary transition-colors">Contact</a></li>
+                    <li><a href="#contact" class="bg-secondary text-primary px-6 py-2 rounded-full font-semibold hover:bg-yellow-500 transition-all">Réserver</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="accueil" class="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-primary via-red-900 to-secondary overflow-hidden">
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+        <div class="particle"></div>
+
+        <div class="relative z-10 text-center text-white px-6 pt-20">
+            <div class="hero-logo-wrapper mb-8">
+                {{#LOGO_URL}}
+                <img src="{{LOGO_URL}}" alt="{{NOM}}" class="max-w-xs mx-auto h-auto drop-shadow-2xl">
+                {{/LOGO_URL}}
+                {{^LOGO_URL}}
+                <h1 class="text-7xl font-display font-bold mb-4 drop-shadow-lg">{{NOM}}</h1>
+                {{/LOGO_URL}}
+            </div>
+            <h2 class="text-3xl md:text-4xl font-display mb-6 text-accent">{{SLOGAN}}</h2>
+            <p class="text-xl mb-8 max-w-2xl mx-auto opacity-95">{{TYPE}} authentique à {{VILLE}}</p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="#contact" class="bg-secondary text-primary px-8 py-4 rounded-full text-lg font-semibold hover:bg-yellow-500 transition-all transform hover:-translate-y-1 shadow-xl">Réserver une table</a>
+                <a href="#apropos" class="bg-white/10 backdrop-blur-sm text-white border-2 border-white px-8 py-4 rounded-full text-lg font-semibold hover:bg-white/20 transition-all">Découvrir</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- À Propos -->
+    <section id="apropos" class="py-20 px-6 bg-accent/30">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-primary mb-4">Notre Histoire</h2>
+            <p class="text-center text-secondary text-xl mb-16">Une passion familiale pour la cuisine authentique</p>
+
+            <div class="grid md:grid-cols-2 gap-12 items-center mb-16">
+                <div class="space-y-6 text-lg leading-relaxed">
+                    <p>{{DESCRIPTION}}</p>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    {{#PHOTO_1}}
+                    <img src="{{PHOTO_1}}" alt="Photo 1" class="rounded-xl shadow-lg w-full h-64 object-cover">
+                    {{/PHOTO_1}}
+                    {{#PHOTO_2}}
+                    <img src="{{PHOTO_2}}" alt="Photo 2" class="rounded-xl shadow-lg w-full h-64 object-cover">
+                    {{/PHOTO_2}}
+                    {{^PHOTO_1}}
+                    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=600" alt="Restaurant" class="rounded-xl shadow-lg w-full h-64 object-cover">
+                    <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=600" alt="Ambiance" class="rounded-xl shadow-lg w-full h-64 object-cover">
+                    {{/PHOTO_1}}
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">🍝</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Fait Maison</h3>
+                    <p class="text-gray-600">Tous nos plats sont préparés sur place avec des ingrédients frais et de qualité</p>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">👨‍🍳</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Recettes Authentiques</h3>
+                    <p class="text-gray-600">Des recettes traditionnelles transmises de génération en génération</p>
+                </div>
+                <div class="bg-white rounded-xl p-8 shadow-lg text-center transform hover:-translate-y-2 transition-all">
+                    <div class="text-5xl mb-4">🌿</div>
+                    <h3 class="text-2xl font-display font-semibold text-primary mb-3">Produits Locaux</h3>
+                    <p class="text-gray-600">Nous privilégions les producteurs locaux et les circuits courts</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Spécialités -->
+    <section id="specialites" class="py-20 px-6 bg-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-primary mb-4">Nos Spécialités</h2>
+            <p class="text-center text-secondary text-xl mb-16">Des saveurs authentiques qui racontent une histoire</p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all">
+                    <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600" alt="Pizza" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-display font-semibold text-primary mb-3">Pizza Margherita</h3>
+                        <p class="text-gray-600">Notre pizza signature cuite au feu de bois avec mozzarella di bufala et basilic frais</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all">
+                    <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600" alt="Pâtes" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-display font-semibold text-primary mb-3">Pasta Carbonara</h3>
+                        <p class="text-gray-600">La vraie recette romaine avec guanciale, pecorino et oeufs frais</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all">
+                    <img src="https://images.unsplash.com/photo-1546549032-9571cd6b27df?w=600" alt="Osso Buco" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-display font-semibold text-primary mb-3">Osso Buco</h3>
+                        <p class="text-gray-600">Jarret de veau mijoté à la milanaise avec risotto au safran</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all">
+                    <img src="https://images.unsplash.com/photo-1476124369491-f5c6d1e46d82?w=600" alt="Risotto" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-display font-semibold text-primary mb-3">Risotto ai Funghi</h3>
+                        <p class="text-gray-600">Risotto crémeux aux champignons porcini et parmesan</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all">
+                    <img src="https://images.unsplash.com/photo-1567885135000-beb7f00e1958?w=600" alt="Tiramisu" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-display font-semibold text-primary mb-3">Tiramisu Maison</h3>
+                        <p class="text-gray-600">Le dessert italien par excellence avec mascarpone et café</p>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl overflow-hidden shadow-lg transform hover:-translate-y-2 transition-all">
+                    <img src="https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=600" alt="Panna Cotta" class="w-full h-64 object-cover">
+                    <div class="p-6">
+                        <h3 class="text-2xl font-display font-semibold text-primary mb-3">Panna Cotta</h3>
+                        <p class="text-gray-600">Crème onctueuse aux fruits rouges et coulis maison</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Avis Clients -->
+    <section id="avis" class="py-20 px-6 bg-gradient-to-br from-primary to-red-900 text-white">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-secondary mb-4">Ce que disent nos clients</h2>
+            <p class="text-center text-accent text-xl mb-16">Votre satisfaction est notre fierté</p>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                    <div class="flex gap-1 text-secondary text-2xl mb-4">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <p class="text-lg mb-6 italic leading-relaxed">{{AVIS_1_TEXTE}}</p>
+                    <p class="font-semibold text-secondary">{{AVIS_1_NOM}}</p>
+                    <p class="text-sm text-accent">Il y a {{AVIS_1_DATE}}</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                    <div class="flex gap-1 text-secondary text-2xl mb-4">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <p class="text-lg mb-6 italic leading-relaxed">{{AVIS_2_TEXTE}}</p>
+                    <p class="font-semibold text-secondary">{{AVIS_2_NOM}}</p>
+                    <p class="text-sm text-accent">Il y a {{AVIS_2_DATE}}</p>
+                </div>
+                <div class="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                    <div class="flex gap-1 text-secondary text-2xl mb-4">
+                        <span>★</span><span>★</span><span>★</span><span>★</span><span>★</span>
+                    </div>
+                    <p class="text-lg mb-6 italic leading-relaxed">{{AVIS_3_TEXTE}}</p>
+                    <p class="font-semibold text-secondary">{{AVIS_3_NOM}}</p>
+                    <p class="text-sm text-accent">Il y a {{AVIS_3_DATE}}</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact -->
+    <section id="contact" class="py-20 px-6 bg-accent/30">
+        <div class="max-w-7xl mx-auto">
+            <h2 class="text-5xl font-display font-bold text-center text-primary mb-4">Nous Contacter</h2>
+            <p class="text-center text-secondary text-xl mb-16">Nous serions ravis de vous accueillir</p>
+
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="space-y-8">
+                    <h3 class="text-3xl font-display font-semibold text-primary">Coordonnées</h3>
+
+                    <div class="space-y-4">
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">📞</div>
+                            <div>
+                                <p class="font-semibold text-primary">Téléphone</p>
+                                <a href="tel:{{TEL}}" class="text-lg text-gray-700 hover:text-primary transition-colors">{{TEL}}</a>
+                            </div>
+                        </div>
+
+                        {{#EMAIL}}
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">✉️</div>
+                            <div>
+                                <p class="font-semibold text-primary">Email</p>
+                                <a href="mailto:{{EMAIL}}" class="text-lg text-gray-700 hover:text-primary transition-colors">{{EMAIL}}</a>
+                            </div>
+                        </div>
+                        {{/EMAIL}}
+
+                        {{#ADRESSE}}
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">📍</div>
+                            <div>
+                                <p class="font-semibold text-primary">Adresse</p>
+                                <p class="text-lg text-gray-700">{{ADRESSE}}</p>
+                            </div>
+                        </div>
+                        {{/ADRESSE}}
+
+                        {{#HORAIRES}}
+                        <div class="flex items-start gap-4">
+                            <div class="w-12 h-12 bg-secondary rounded-full flex items-center justify-center flex-shrink-0 text-2xl">🕒</div>
+                            <div>
+                                <p class="font-semibold text-primary">Horaires</p>
+                                <p class="text-lg text-gray-700 whitespace-pre-line">{{HORAIRES}}</p>
+                            </div>
+                        </div>
+                        {{/HORAIRES}}
+                    </div>
+                </div>
+
+                <form action="mailto:{{EMAIL}}?subject=Réservation depuis le site" method="post" enctype="text/plain" class="bg-white rounded-xl p-8 shadow-lg space-y-4">
+                    <input type="text" name="nom" placeholder="Votre nom *" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="email" name="email" placeholder="Votre email *" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <input type="tel" name="telephone" placeholder="Téléphone" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <div class="grid grid-cols-2 gap-4">
+                        <input type="date" name="date" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                        <input type="time" name="heure" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    </div>
+                    <input type="number" name="personnes" placeholder="Nombre de personnes" min="1" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary">
+                    <textarea name="message" placeholder="Votre message" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary resize-none"></textarea>
+                    <button type="submit" class="w-full bg-primary text-white px-8 py-4 rounded-lg text-lg font-semibold hover:bg-red-900 transition-all">Envoyer</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-primary text-white py-12 px-6">
+        <div class="max-w-7xl mx-auto">
+            <div class="grid md:grid-cols-3 gap-12 mb-8">
+                <div>
+                    <h4 class="text-2xl font-display font-semibold text-secondary mb-4">{{NOM}}</h4>
+                    <p class="text-accent leading-relaxed">{{TYPE}} authentique à {{VILLE}}</p>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold text-secondary mb-4">Navigation</h4>
+                    <ul class="space-y-2 text-accent">
+                        <li><a href="#accueil" class="hover:text-secondary transition-colors">Accueil</a></li>
+                        <li><a href="#apropos" class="hover:text-secondary transition-colors">À propos</a></li>
+                        <li><a href="#specialites" class="hover:text-secondary transition-colors">Spécialités</a></li>
+                        <li><a href="#contact" class="hover:text-secondary transition-colors">Contact</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-xl font-semibold text-secondary mb-4">Contact</h4>
+                    <ul class="space-y-2 text-accent">
+                        <li><a href="tel:{{TEL}}" class="hover:text-secondary transition-colors">{{TEL}}</a></li>
+                        {{#EMAIL}}
+                        <li><a href="mailto:{{EMAIL}}" class="hover:text-secondary transition-colors">{{EMAIL}}</a></li>
+                        {{/EMAIL}}
+                        {{#ADRESSE}}
+                        <li>{{ADRESSE}}</li>
+                        {{/ADRESSE}}
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-white/20 pt-8 text-center text-accent">
+                <p>&copy; 2026 {{NOM}}. Tous droits réservés.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>
