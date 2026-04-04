@@ -57,167 +57,559 @@ export async function POST(req: NextRequest) {
     const hasPhotos = data.photoUrls && data.photoUrls.length > 0;
     const hasReviews = data.reviews && data.reviews.trim().length > 20;
 
-    const systemPrompt = `Tu es un expert en création de sites web pour commerces locaux. Tu génères UNIQUEMENT du code HTML/CSS complet et fonctionnel.
+    const systemPrompt = `Tu es un expert designer web spécialisé en sites pour commerces locaux. Tu génères du HTML/CSS de QUALITÉ PROFESSIONNELLE.
 
-STYLE OBLIGATOIRE:
-- Aucun emoji dans tout le HTML
-- Pas de style SaaS/startup/tech
-- Design chaleureux, humain, professionnel
-- Couleurs selon le type: restaurant=rouge/orange/crème, coiffeur=noir/or/blanc, boulangerie=beige/marron/doré
+═══════════════════════════════════════════════════════════════════
+RÈGLES DE DESIGN PROFESSIONNELLES
+═══════════════════════════════════════════════════════════════════
 
-SECTIONS OBLIGATOIRES DANS L'ORDRE:
-1. NAV: logo (img si logo_url fourni, sinon texte nom), liens: Accueil, A propos, Services, Contact + bouton Réserver (+ lien "Notre Carte" pour restaurants)
-2. HERO ANIMÉ (NOUVEAU FORMAT):
-   - PAS de photo de fond de restaurant/salle
-   - Fond: gradient élégant selon le type de commerce (ex: linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%) pour restaurant italien)
-   - Centre: LOGO du commerce (si logo_url fourni: <img src="logo_url" style="max-width: 300px; height: auto; position: relative; z-index: 2;">)
-   - Animation CSS thématique autour du logo selon le type:
-     * Restaurant italien: animation de spaghetti/pâtes en CSS qui tournent en cercle autour du logo (utiliser ::before/::after et keyframes)
-     * Coiffeur: animation de ciseaux qui s'ouvrent/ferment en CSS
-     * Boulangerie: étoiles dorées qui tournent autour du logo
-     * Boutique: particules élégantes qui flottent
-   - Animation UNIQUEMENT en CSS pur avec @keyframes et pseudo-éléments, PAS de librairie externe
-   - Titre et sous-titre en dessous du logo
-   - 2 boutons fonctionnels
-3. ABOUT: histoire du commerce, 3 points forts avec icônes SVG simples
-4. SERVICES: grille de 3-6 cartes avec titre et description, PHOTOS Unsplash thématiques (ex: photo de pizza, pâtes, tiramisu pour restaurant - PAS de photos de salle/restaurant)
-5. AVIS: 3 avis clients avec étoiles SVG dorées, nom, commentaire (utiliser les vrais avis fournis)
-6. CONTACT: adresse, téléphone cliquable (tel:), email cliquable (mailto:), formulaire avec champs Nom/Email/Message/Téléphone/Date/Heure/Personnes qui ouvre mailto
-7. FOOTER: nom, adresse, tel, liens nav, copyright
+TYPOGRAPHIE:
+- Headers: Playfair Display (serif, élégant) ou Montserrat (sans-serif, moderne)
+- Body: Open Sans ou Lato (lisibilité optimale)
+- Tailles: h1=3-4rem, h2=2.5rem, h3=1.8rem, p=1.1rem, minimum 16px
+- Line-height: 1.6-1.8 pour le texte, 1.2 pour les titres
+- Letter-spacing: titres=-0.02em, texte=normal
 
-RÈGLES TECHNIQUES:
-- CSS inline dans balise style
-- Polices Google Fonts via CDN
-- Mobile responsive
-- Boutons tel: et mailto: fonctionnels avec vraies coordonnées
-- Si logo_url fourni: <img src='[logo_url]' height='50'>
-- Si photos fournies: les utiliser dans les sections services
-- Retourner UNIQUEMENT le HTML complet, aucun texte avant ou après`;
+COULEURS PAR TYPE:
+- Restaurant italien: Primaire #8B1A1A (bordeaux), Secondaire #C9A84C (or), Accent #FFF8E7 (crème)
+- Café: Primaire #3B2621 (marron), Secondaire #C4A57B (beige), Accent #E8DCC8
+- Boulangerie: Primaire #D4A574 (beige doré), Secondaire #8B5A3C (marron), Accent #FFF5E6
+- Coiffeur: Primaire #1A1A1A (noir), Secondaire #C9A84C (or), Accent #F5F5F5
+- Boutique: Primaire #2C3E50 (bleu nuit), Secondaire #3498DB (bleu), Accent #ECF0F1
 
-    const userPrompt = `Business: ${data.prompt}
-${data.logoUrl ? `\nLogo URL: ${data.logoUrl}` : ''}
-${hasReviews ? `\nReviews: ${data.reviews}` : ''}
-${hasPhotos ? `\nPhotos: ${JSON.stringify(data.photoUrls)}` : ''}
+ESPACEMENTS:
+- Sections: padding 5rem 5% (mobile: 3rem 5%)
+- Container max-width: 1200px
+- Gap entre éléments: 2-3rem
+- Marges internes: 1.5-2rem
 
-Create a COMPLETE HTML website with ALL these sections filled with content:
+EFFETS VISUELS:
+- Ombres douces: box-shadow: 0 4px 20px rgba(0,0,0,0.1)
+- Ombres hover: box-shadow: 0 8px 30px rgba(0,0,0,0.15)
+- Transitions: 0.3s ease pour tout (hover, focus)
+- Border-radius: 12px pour cartes, 50px pour boutons
+- Backdrop-filter: blur(10px) pour overlay
 
-1. Full HTML structure: <!DOCTYPE html>, <html>, <head> with meta tags and title, <style> with all CSS, <body>, <script> if needed, closing </body></html>
+BOUTONS:
+- Primaire: background=couleur primaire, padding=1rem 2.5rem, border-radius=50px
+- Hover: transform: translateY(-2px), box-shadow augmentée
+- Active: transform: scale(0.98)
+- Font-weight: 600, font-size: 1.1rem
 
-2. Navigation bar:
-   ${data.logoUrl ? `- OBLIGATOIRE: Afficher le logo avec <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain;"> à la place du nom textuel. Le logo DOIT être visible dans le header.` : '- Business name as text'}
-   - Menu links (Accueil, À propos, Services, Contact)
-   - POUR RESTAURANTS: Ajouter un lien "Notre Carte" qui pointe vers "#menu" ou un bouton qui dit "Voir la Carte"
+═══════════════════════════════════════════════════════════════════
+STRUCTURE HTML OBLIGATOIRE (7 SECTIONS)
+═══════════════════════════════════════════════════════════════════
 
-3. Hero section ANIMÉ (NOUVEAU FORMAT - CRITIQUE):
-   - PAS DE PHOTO DE FOND de restaurant/salle/cuisine
-   - Fond: Gradient élégant selon le type de commerce:
-     * Restaurant italien: linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%)
-     * Café: linear-gradient(135deg, #3B2621 0%, #C4A57B 100%)
-     * Boulangerie: linear-gradient(135deg, #D4A574 0%, #8B5A3C 100%)
-     * Coiffeur: linear-gradient(135deg, #1a1a1a 0%, #c9a84c 100%)
-     * Boutique: linear-gradient(135deg, #2c3e50 0%, #3498db 100%)
-   - AU CENTRE: ${data.logoUrl ? `LOGO du commerce <img src="${data.logoUrl}" alt="Logo" style="max-width: 300px; max-height: 300px; height: auto; width: auto; position: relative; z-index: 2; display: block; margin: 0 auto;">` : 'Nom du commerce en grand titre'}
-   - ANIMATION CSS thématique autour du logo (UNIQUEMENT CSS pur, pas de librairie):
-     * Restaurant italien: Créer 8-12 éléments de pâtes/spaghetti avec ::before/::after qui tournent en cercle autour du logo avec @keyframes rotate. Utiliser border-radius pour forme de pâtes, couleur #FFD700
-     * Coiffeur: 2 ciseaux en CSS qui s'ouvrent/ferment avec animation, positionnés de chaque côté du logo
-     * Boulangerie: 6-8 étoiles dorées (★) en CSS qui tournent lentement autour du logo
-     * Boutique: 10-15 particules circulaires qui flottent avec animation float et opacity
-   - Exemple de code pour animation de cercle:
-     ```css
-     .hero-logo-container {
-       position: relative;
-       display: inline-block;
-     }
-     .hero-logo-container::before,
-     .hero-logo-container::after {
-       content: '';
-       position: absolute;
-       animation: rotate 10s linear infinite;
-     }
-     @keyframes rotate {
-       from { transform: rotate(0deg) translateX(150px) rotate(0deg); }
-       to { transform: rotate(360deg) translateX(150px) rotate(-360deg); }
-     }
-     ```
-   - EN DESSOUS du logo: titre accrocheur et sous-titre
-   - 2 boutons fonctionnels (Réserver, Contact)
+1. NAVIGATION FIXE (sticky top-0, z-index: 1000)
+   - Logo ou nom (50px height si logo)
+   - Menu: Accueil, À propos, Services, Contact + "Notre Carte" si restaurant
+   - Smooth scroll: html { scroll-behavior: smooth; }
+   - Background: rgba(primaire, 0.95) avec backdrop-filter: blur(10px)
 
-4. Reservation Modal (for restaurants/cafés/salons):
-   - Modal overlay with form (hidden by default, shown when CTA clicked)
-   - Form fields: Nom, Email, Téléphone, Date, Heure, Nombre de personnes, Message
-   - Submit button that uses mailto: with extracted email
-   - JavaScript to show/hide modal on button click
-   - Example mailto: "mailto:email@example.com?subject=Réservation&body=Nom:%20...Date:%20..."
+2. HERO ANIMÉ (100vh, gradient background)
+   - JAMAIS de photo de fond de restaurant/salle
+   - Gradient selon type (voir couleurs ci-dessus)
+   - Logo centré (300px max) avec animations CSS autour
+   - Titre H1 + sous-titre + 2 boutons CTA
+   - Animations CSS pures avec @keyframes (exemples fournis)
 
-5. About section:
-   - Section title
-   - 2-3 paragraphs telling the story of the business
-   - What makes them unique
-   ${hasPhotos ? `- OBLIGATOIRE: Intégrer TOUTES les photos uploadées ${JSON.stringify(data.photoUrls)} avec des balises <img src="URL" alt="..." style="width: 100%; max-width: 400px; height: auto; object-fit: cover; border-radius: 8px;"> dans cette section. Créer une galerie ou grille pour afficher toutes les photos.` : '- Si nécessaire: 1-2 photos thématiques Unsplash (produits/spécialités, PAS de salle/restaurant)'}
+3. À PROPOS (background alterné, ex: #FAF8F3)
+   - Titre H2
+   - 2-3 paragraphes (histoire, valeurs, équipe)
+   - Grille 3 colonnes: icônes + points forts
+   - Photos uploadées si fournies (galerie responsive)
 
-6. Services/Specialties section:
-   - Section title
-   - Grid of 4-6 services/products with icons, names, and descriptions
-   ${hasPhotos && data.photoUrls!.length > 3 ? `- OBLIGATOIRE: Utiliser les photos uploadées ${JSON.stringify(data.photoUrls)} pour illustrer les services avec <img> tags` : '- PHOTOS THÉMATIQUES Unsplash pour chaque service/spécialité (UNIQUEMENT photos de produits/plats, PAS de photos de salle/restaurant):'}
-   - Exemples de photos thématiques:
-     * Restaurant italien: Pizza (photo-1565299624946-b28f40a0ae38), Pâtes (photo-1621996346565-e3dbc646d9a9), Tiramisu (photo-1571877227200-a0d98ea607e9), Risotto (photo-1476124369491-f5c6d1e46d82)
-     * Café: Cappuccino (photo-1572442388796-11668a67e53d), Croissant (photo-1555507036-ab1f4038808a), Latte (photo-1461023058943-07fcbe16d735)
-     * Boulangerie: Pain (photo-1509440159596-0249088772ff), Croissants (photo-1555507036-ab1f4038808a), Gâteaux (photo-1578985545062-69928b1d9587)
-     * Coiffeur: PAS de photo, utiliser des icônes CSS/SVG uniquement
+4. SERVICES/SPÉCIALITÉS
+   - Titre H2 + sous-titre
+   - Grille responsive 3 colonnes (mobile: 1 colonne)
+   - Cartes avec: image Unsplash (250px height) + titre + description
+   - UNIQUEMENT photos de produits/plats, PAS de salle
+   - Hover: transform: translateY(-10px)
 
-7. Client Reviews section (OBLIGATOIRE):
-   - Section title "Avis de nos clients" or "Témoignages"
-   ${hasReviews ? `- UTILISER LES VRAIS AVIS fournis dans les reviews: "${data.reviews?.substring(0, 100)}..."` : ''}
-   - ${hasReviews ? 'Minimum 3' : '3'} review cards avec:
-     * 5 golden stars (★★★★★ in yellow/gold color #FFD700)
-     * Client name (${hasReviews ? 'utiliser les noms fournis' : 'realistic, matching region'})
-     * ${hasReviews ? 'Utiliser les commentaires exacts fournis' : 'Realistic testimonial (2-3 sentences) specific to the business type'}
-     * Date (recent, like "Il y a 2 semaines")
-   - Style: cards avec fond légèrement différent, ombre, étoiles bien visibles
+5. AVIS CLIENTS (background couleur primaire foncé, texte blanc)
+   - Titre H2
+   - Grille 3 cartes avis (mobile: 1 colonne)
+   - Chaque carte: 5 étoiles dorées ★★★★★ + texte + nom + date
+   - Style: cards transparentes rgba(255,255,255,0.1)
 
-8. Contact section:
-   - Section title
-   - Real phone number extracted from description (format: +41 XX XXX XX XX)
-   - Real email if mentioned
-   - Real address if mentioned
-   - Opening hours if mentioned
-   - Contact form with fields (Nom, Email, Message)
+6. CONTACT (background alterné)
+   - Grille 2 colonnes: info + formulaire
+   - Info: adresse, tel cliquable, email cliquable, horaires
+   - Formulaire: Nom, Email, Téléphone, Date, Heure, Personnes, Message
+   - Submit ouvre mailto: avec données pré-remplies
 
-9. Footer: business name, copyright, social media links
+7. FOOTER (background couleur primaire, texte blanc)
+   - 3 colonnes: À propos, Navigation, Contact
+   - Copyright + année
+   - Liens réseaux sociaux (optionnel)
 
-IMPORTANT:
-- Generate COMPLETE content for EVERY section - no placeholders, no empty divs
-- Extract and use REAL contact info from the description
-- Use Unsplash images with direct URLs matching the business type
-- Include working reservation modal with mailto: functionality
-- STYLE: Commerce local chaleureux et humain - PAS de style startup/SaaS/tech/corporate. Couleurs chaleureuses (rouge, orange, marron, vert naturel), typographie lisible et conviviale, espacement généreux, design accueillant
-- Mobile responsive layout
-- N'utilise AUCUN emoji dans le site généré. Pas d'émojis dans les titres, boutons, textes, icônes ou anywhere. Utilise uniquement du texte et des icônes CSS/SVG.
+═══════════════════════════════════════════════════════════════════
+RESPONSIVE MOBILE-FIRST
+═══════════════════════════════════════════════════════════════════
 
-INSTRUCTIONS SUPPLÉMENTAIRES:
-1. LOGO: ${data.logoUrl ? `🚨 CRITIQUE - Le logo DOIT être visible:
-   - Dans le HEADER: <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain; display: block;">
-   - Dans le HERO: <img src="${data.logoUrl}" alt="Logo" style="max-width: 300px; max-height: 300px; height: auto; width: auto; position: relative; z-index: 2; display: block; margin: 0 auto;">
-   - Remplacer complètement le nom textuel par cette image. Vérifier que l'URL est correcte et l'image sera chargée.` : 'Utiliser le nom du business en texte dans le header'}
-2. PHOTOS UPLOADÉES: ${hasPhotos ? `🚨 CRITIQUE - TOUTES les photos suivantes DOIVENT apparaître dans le site: ${JSON.stringify(data.photoUrls)}\n   - Créer une section Galerie dédiée avec toutes les photos en grille responsive\n   - Ou intégrer les photos dans les sections About et Services\n   - Utiliser: <img src="URL_PHOTO" alt="..." style="width: 100%; height: 250px; object-fit: cover; border-radius: 12px;">\n   - Chaque photo doit être visible et bien stylée` : 'Utiliser des photos Unsplash thématiques si nécessaire (produits/plats uniquement)'}
-3. HERO ANIMÉ: 🚨 CRITIQUE
-   - PAS de photo de fond de restaurant/salle
-   - Utiliser un gradient de couleur élégant selon le type de commerce
-   - Centrer le logo (si fourni) avec animation CSS autour
-   - Animation thématique en CSS pur (voir instructions détaillées ci-dessus)
-4. PHOTOS THÉMATIQUES pour Services/Spécialités:
-   - UNIQUEMENT des photos de produits/plats/spécialités (Pizza, Pâtes, Desserts, etc.)
-   - PAS de photos de salle, restaurant, cuisine ou intérieur
-   - Exemples: photo-1565299624946-b28f40a0ae38 (Pizza), photo-1621996346565-e3dbc646d9a9 (Pâtes), photo-1571877227200-a0d98ea607e9 (Tiramisu)
-5. RÉSERVATION: Bouton "Réserver" ouvre un modal HTML/CSS/JS avec formulaire (Nom, Email, Téléphone, Date, Heure, Nombre de personnes) qui utilise mailto: vers l'email du restaurant extrait de la description
-6. AVIS: Section avec 3 avis clients comprenant des étoiles ⭐⭐⭐⭐⭐ dorées et noms réalistes
+@media (max-width: 768px) {
+  - Grilles 3 colonnes → 1 colonne
+  - Padding sections: 3rem 5%
+  - Font-sizes: h1=2.5rem, h2=2rem, p=1rem
+  - Navigation: hamburger menu ou liens plus petits
+  - Hero: 70vh au lieu de 100vh
+  - Boutons: full-width si nécessaire
+}
 
-Return ONLY the complete HTML file (no markdown, no backticks, no explanation)`;
+═══════════════════════════════════════════════════════════════════
+ANIMATIONS CSS (EXEMPLES CONCRETS)
+═══════════════════════════════════════════════════════════════════
+
+RESTAURANT - Particules circulaires autour du logo:
+.hero-container { position: relative; display: inline-block; }
+.hero-container::before,
+.hero-container::after {
+  content: ''; position: absolute; width: 20px; height: 20px;
+  background: #FFD700; border-radius: 50%; opacity: 0.8;
+  animation: orbit 8s linear infinite;
+}
+.hero-container::before { animation-delay: 0s; }
+.hero-container::after { animation-delay: 4s; }
+@keyframes orbit {
+  from { transform: rotate(0deg) translateX(200px) rotate(0deg); }
+  to { transform: rotate(360deg) translateX(200px) rotate(-360deg); }
+}
+
+BOULANGERIE - Étoiles qui tournent:
+.hero-container::before { content: '★'; font-size: 2rem; color: #FFD700; }
+
+COIFFEUR - Ciseaux animés:
+.hero-container::before,
+.hero-container::after {
+  content: '✂'; font-size: 3rem; position: absolute;
+  animation: scissor 2s ease-in-out infinite;
+}
+
+RÈGLES FINALES:
+- Aucun emoji dans le HTML (sauf pour animations CSS si symboles nécessaires)
+- Tous les liens tel: et mailto: doivent fonctionner
+- Code HTML valide, propre, indenté
+- Retourner UNIQUEMENT le HTML complet, pas de markdown, pas d'explication`;
+
+    const userPrompt = `═══════════════════════════════════════════════════════════════════
+INFORMATIONS DU COMMERCE
+═══════════════════════════════════════════════════════════════════
+
+${data.prompt}
+
+${data.logoUrl ? `LOGO: ${data.logoUrl} (OBLIGATOIRE à afficher dans header ET hero)` : 'PAS DE LOGO - Utiliser le nom en texte'}
+${hasReviews ? `\nAVIS CLIENTS (utiliser les vrais avis fournis):\n${data.reviews}` : 'PAS D\'AVIS - Générer 3 avis réalistes'}
+${hasPhotos ? `\nPHOTOS UPLOADÉES (toutes doivent apparaître):\n${JSON.stringify(data.photoUrls)}` : 'PAS DE PHOTOS - Utiliser Unsplash thématiques'}
+
+═══════════════════════════════════════════════════════════════════
+GÉNÈRE UN SITE HTML/CSS COMPLET ET PROFESSIONNEL
+═══════════════════════════════════════════════════════════════════
+
+STRUCTURE COMPLÈTE OBLIGATOIRE:
+
+1. DOCTYPE ET HEAD COMPLET
+   <!DOCTYPE html>
+   <html lang="fr">
+   <head>
+     <meta charset="UTF-8">
+     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+     <title>[Nom du commerce] - [Type]</title>
+     <link rel="preconnect" href="https://fonts.googleapis.com">
+     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+     <style>
+       * { margin: 0; padding: 0; box-sizing: border-box; }
+       html { scroll-behavior: smooth; }
+       body { font-family: 'Open Sans', sans-serif; color: #333; line-height: 1.6; }
+       [... tous les styles CSS ici ...]
+     </style>
+   </head>
+
+2. NAVIGATION STICKY (position: fixed; top: 0; width: 100%; z-index: 1000)
+   - Background: rgba(primaire, 0.95) avec backdrop-filter: blur(10px)
+   - Container flex justify-between align-center, padding: 1rem 5%
+   - ${data.logoUrl ? `LOGO: <img src="${data.logoUrl}" alt="Logo" style="max-height: 50px; height: 50px; width: auto; object-fit: contain;">` : 'Nom en texte (font-size: 1.8rem, font-weight: 700)'}
+   - Menu: <nav><ul style="display: flex; gap: 2rem; list-style: none;">
+       <li><a href="#accueil">Accueil</a></li>
+       <li><a href="#apropos">À propos</a></li>
+       <li><a href="#services">Services</a></li>
+       ${data.prompt.match(/restaurant|café|pizzeria|trattoria/i) ? '<li><a href="#menu">Notre Carte</a></li>' : ''}
+       <li><a href="#contact">Contact</a></li>
+     </ul></nav>
+   - Bouton CTA: <a href="#contact" class="btn-nav">Réserver</a>
+
+3. HERO SECTION ANIMÉE (height: 100vh; display: flex; align-items: center; justify-content: center)
+
+   BACKGROUND GRADIENT (PAS DE PHOTO):
+   ${data.prompt.match(/restaurant|pizzeria|trattoria|italien/i) ? 'background: linear-gradient(135deg, #8B1A1A 0%, #C9A84C 100%);' : ''}
+   ${data.prompt.match(/café|coffee|barista/i) ? 'background: linear-gradient(135deg, #3B2621 0%, #C4A57B 100%);' : ''}
+   ${data.prompt.match(/boulangerie|pâtisserie|bakery/i) ? 'background: linear-gradient(135deg, #D4A574 0%, #8B5A3C 100%);' : ''}
+   ${data.prompt.match(/coiffeur|salon|beauty/i) ? 'background: linear-gradient(135deg, #1a1a1a 0%, #c9a84c 100%);' : ''}
+   (Si aucun match: utiliser gradient approprié au type de commerce)
+
+   STRUCTURE HTML:
+   <section id="accueil" class="hero">
+     <div class="hero-content">
+       ${data.logoUrl ? `
+       <div class="hero-logo-wrapper">
+         <img src="${data.logoUrl}" alt="Logo" class="hero-logo">
+       </div>` : '<h1 class="hero-title">[Nom du commerce]</h1>'}
+       <h2 class="hero-subtitle">[Phrase accrocheuse décrivant l'activité]</h2>
+       <div class="hero-buttons">
+         <a href="#contact" class="btn btn-primary">Réserver une table</a>
+         <a href="#apropos" class="btn btn-secondary">Découvrir</a>
+       </div>
+     </div>
+   </section>
+
+   CSS ANIMATIONS (ajouter des particules/éléments animés):
+   .hero-logo-wrapper {
+     position: relative;
+     display: inline-block;
+     margin-bottom: 2rem;
+   }
+   /* Créer 6-8 particules animées avec ::before, ::after et autres éléments */
+   .hero-logo-wrapper::before,
+   .hero-logo-wrapper::after {
+     content: '';
+     position: absolute;
+     width: 25px;
+     height: 25px;
+     background: rgba(255, 215, 0, 0.7);
+     border-radius: 50%;
+     animation: orbit 12s linear infinite;
+   }
+   .hero-logo-wrapper::before {
+     top: 50%;
+     left: 50%;
+     margin: -12.5px;
+     animation-delay: 0s;
+   }
+   .hero-logo-wrapper::after {
+     animation-delay: 6s;
+   }
+   @keyframes orbit {
+     0% { transform: rotate(0deg) translateX(180px) rotate(0deg); opacity: 0.7; }
+     50% { opacity: 1; }
+     100% { transform: rotate(360deg) translateX(180px) rotate(-360deg); opacity: 0.7; }
+   }
+
+   STYLES HERO:
+   .hero { color: white; text-align: center; position: relative; overflow: hidden; }
+   .hero-content { position: relative; z-index: 2; }
+   .hero-logo { max-width: 300px; max-height: 300px; width: auto; height: auto; filter: drop-shadow(0 10px 30px rgba(0,0,0,0.3)); }
+   .hero-title { font-size: 4rem; font-weight: 700; margin-bottom: 1rem; text-shadow: 2px 2px 8px rgba(0,0,0,0.3); }
+   .hero-subtitle { font-size: 1.5rem; margin-bottom: 2rem; opacity: 0.95; }
+   .hero-buttons { display: flex; gap: 1.5rem; justify-content: center; flex-wrap: wrap; }
+
+4. SECTION À PROPOS (padding: 5rem 5%; background: #FAF8F3)
+   <section id="apropos" class="about">
+     <div class="container">
+       <h2 class="section-title">Notre Histoire</h2>
+       <p class="section-subtitle">[Sous-titre accrocheur]</p>
+
+       <div class="about-content">
+         <div class="about-text">
+           <p>[Paragraphe 1: Histoire, fondation, passion]</p>
+           <p>[Paragraphe 2: Valeurs, ce qui rend unique]</p>
+         </div>
+         ${hasPhotos ? `
+         <div class="about-gallery">
+           ${data.photoUrls!.map((url, i) => `<img src="${url}" alt="Photo ${i+1}" class="about-photo">`).join('\n           ')}
+         </div>` : ''}
+       </div>
+
+       <div class="about-features">
+         <div class="feature-card">
+           <div class="feature-icon">🌟</div>
+           <h3>[Point fort 1]</h3>
+           <p>[Description]</p>
+         </div>
+         <div class="feature-card">
+           <div class="feature-icon">✨</div>
+           <h3>[Point fort 2]</h3>
+           <p>[Description]</p>
+         </div>
+         <div class="feature-card">
+           <div class="feature-icon">💫</div>
+           <h3>[Point fort 3]</h3>
+           <p>[Description]</p>
+         </div>
+       </div>
+     </div>
+   </section>
+
+   CSS:
+   .about-content { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-bottom: 3rem; }
+   .about-text p { font-size: 1.1rem; margin-bottom: 1rem; }
+   ${hasPhotos ? `.about-gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; }
+   .about-photo { width: 100%; height: 250px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }` : ''}
+   .about-features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+   .feature-card { text-align: center; padding: 2rem; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); transition: transform 0.3s; }
+   .feature-card:hover { transform: translateY(-10px); }
+   .feature-icon { font-size: 3rem; margin-bottom: 1rem; }
+
+5. SECTION SERVICES/SPÉCIALITÉS (padding: 5rem 5%; background: white)
+   <section id="services" class="services">
+     <div class="container">
+       <h2 class="section-title">${data.prompt.match(/restaurant/i) ? 'Nos Spécialités' : 'Nos Services'}</h2>
+       <p class="section-subtitle">[Description engageante]</p>
+
+       <div class="services-grid">
+         ${hasPhotos && data.photoUrls!.length >= 4 ?
+           data.photoUrls!.slice(0, 6).map((url, i) => `
+         <div class="service-card">
+           <img src="${url}" alt="Service ${i+1}" class="service-image">
+           <div class="service-content">
+             <h3>[Nom du service/plat ${i+1}]</h3>
+             <p>[Description détaillée]</p>
+           </div>
+         </div>`).join('\n         ')
+         : `
+         <!-- Utiliser photos Unsplash thématiques -->
+         <div class="service-card">
+           <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600" alt="Pizza">
+           <div class="service-content">
+             <h3>[Nom spécialité 1]</h3>
+             <p>[Description]</p>
+           </div>
+         </div>
+         <div class="service-card">
+           <img src="https://images.unsplash.com/photo-1621996346565-e3dbc646d9a9?w=600" alt="Pâtes">
+           <div class="service-content">
+             <h3>[Nom spécialité 2]</h3>
+             <p>[Description]</p>
+           </div>
+         </div>
+         <!-- Répéter pour 4-6 services avec photos appropriées -->
+         `}
+       </div>
+     </div>
+   </section>
+
+   CSS:
+   .services-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+   .service-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 5px 25px rgba(0,0,0,0.1); transition: transform 0.3s, box-shadow 0.3s; }
+   .service-card:hover { transform: translateY(-10px); box-shadow: 0 8px 35px rgba(0,0,0,0.15); }
+   .service-image { width: 100%; height: 250px; object-fit: cover; }
+   .service-content { padding: 1.5rem; }
+   .service-content h3 { font-size: 1.5rem; color: [couleur primaire]; margin-bottom: 0.5rem; }
+   .service-content p { color: #666; font-size: 1rem; }
+
+6. SECTION AVIS CLIENTS (padding: 5rem 5%; background: [couleur primaire]; color: white)
+   <section id="avis" class="reviews">
+     <div class="container">
+       <h2 class="section-title" style="color: [couleur or/accent];">Ce que disent nos clients</h2>
+       <p class="section-subtitle">Votre satisfaction est notre fierté</p>
+
+       <div class="reviews-grid">
+         ${hasReviews ? `
+         <!-- UTILISER LES VRAIS AVIS FOURNIS -->
+         ${data.reviews}` : `
+         <div class="review-card">
+           <div class="stars">★★★★★</div>
+           <p class="review-text">"[Commentaire réaliste et spécifique au type de commerce, 2-3 phrases]"</p>
+           <p class="review-author">[Prénom Nom]</p>
+           <p class="review-date">Il y a 2 semaines</p>
+         </div>
+         <div class="review-card">
+           <div class="stars">★★★★★</div>
+           <p class="review-text">"[Commentaire 2]"</p>
+           <p class="review-author">[Prénom2 Nom2]</p>
+           <p class="review-date">Il y a 1 mois</p>
+         </div>
+         <div class="review-card">
+           <div class="stars">★★★★★</div>
+           <p class="review-text">"[Commentaire 3]"</p>
+           <p class="review-author">[Prénom3 Nom3]</p>
+           <p class="review-date">Il y a 3 semaines</p>
+         </div>`}
+       </div>
+     </div>
+   </section>
+
+   CSS:
+   .reviews { background: [couleur primaire foncé]; }
+   .reviews .section-title { color: [couleur or/accent]; }
+   .reviews-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; }
+   .review-card { background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 12px; backdrop-filter: blur(10px); }
+   .stars { color: #FFD700; font-size: 1.5rem; margin-bottom: 1rem; letter-spacing: 0.2rem; }
+   .review-text { font-size: 1.1rem; line-height: 1.7; margin-bottom: 1rem; font-style: italic; }
+   .review-author { font-weight: 600; color: [couleur accent]; margin-bottom: 0.3rem; }
+   .review-date { font-size: 0.9rem; opacity: 0.8; }
+
+7. SECTION CONTACT (padding: 5rem 5%; background: #FAF8F3)
+   <section id="contact" class="contact">
+     <div class="container">
+       <h2 class="section-title">Nous Contacter</h2>
+       <p class="section-subtitle">Nous serions ravis de vous accueillir</p>
+
+       <div class="contact-wrapper">
+         <div class="contact-info">
+           <h3>Coordonnées</h3>
+           <div class="contact-item">
+             <strong>Téléphone:</strong><br>
+             <a href="tel:[téléphone extrait]">[téléphone formaté]</a>
+           </div>
+           ${data.prompt.match(/email|mail|@/i) ? `
+           <div class="contact-item">
+             <strong>Email:</strong><br>
+             <a href="mailto:[email extrait]">[email]</a>
+           </div>` : ''}
+           ${data.prompt.match(/adresse|rue|avenue/i) || data.prompt.match(/\d{4}\s+[A-Za-zÀ-ÿ]/i) ? `
+           <div class="contact-item">
+             <strong>Adresse:</strong><br>
+             [adresse extraite de la description]
+           </div>` : ''}
+           ${data.prompt.match(/horaire|ouvert|fermé|lundi|mardi/i) ? `
+           <div class="contact-item">
+             <strong>Horaires:</strong><br>
+             [horaires extraits]
+           </div>` : ''}
+         </div>
+
+         <form class="contact-form" action="mailto:[email]?subject=Contact depuis le site" method="post" enctype="text/plain">
+           <input type="text" name="nom" placeholder="Votre nom *" required>
+           <input type="email" name="email" placeholder="Votre email *" required>
+           <input type="tel" name="telephone" placeholder="Téléphone">
+           <input type="date" name="date" placeholder="Date souhaitée">
+           <input type="time" name="heure" placeholder="Heure">
+           <input type="number" name="personnes" placeholder="Nombre de personnes" min="1">
+           <textarea name="message" placeholder="Votre message" rows="4"></textarea>
+           <button type="submit" class="btn btn-primary">Envoyer</button>
+         </form>
+       </div>
+     </div>
+   </section>
+
+   CSS:
+   .contact-wrapper { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; }
+   .contact-info h3 { font-size: 2rem; color: [couleur primaire]; margin-bottom: 1.5rem; }
+   .contact-item { margin-bottom: 1.5rem; padding-left: 2rem; position: relative; }
+   .contact-item::before { content: ''; position: absolute; left: 0; top: 0.3rem; width: 1rem; height: 1rem; background: [couleur accent]; border-radius: 50%; }
+   .contact-item a { color: [couleur primaire]; text-decoration: none; font-weight: 600; }
+   .contact-form { display: flex; flex-direction: column; gap: 1rem; }
+   .contact-form input, .contact-form textarea { padding: 1rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+   .contact-form button { align-self: flex-start; }
+
+8. FOOTER (padding: 3rem 5%; background: [couleur primaire]; color: white)
+   <footer class="footer">
+     <div class="container">
+       <div class="footer-content">
+         <div class="footer-col">
+           <h4>[Nom du commerce]</h4>
+           <p>[Description courte]</p>
+         </div>
+         <div class="footer-col">
+           <h4>Navigation</h4>
+           <a href="#accueil">Accueil</a>
+           <a href="#apropos">À propos</a>
+           <a href="#services">Services</a>
+           <a href="#contact">Contact</a>
+         </div>
+         <div class="footer-col">
+           <h4>Contact</h4>
+           <a href="tel:[tel]">[téléphone]</a>
+           <a href="mailto:[email]">[email]</a>
+           <p>[adresse]</p>
+         </div>
+       </div>
+       <div class="footer-bottom">
+         <p>&copy; 2026 [Nom]. Tous droits réservés.</p>
+       </div>
+     </div>
+   </footer>
+
+   CSS:
+   .footer-content { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-bottom: 2rem; }
+   .footer-col h4 { color: [couleur accent]; margin-bottom: 1rem; }
+   .footer-col a { display: block; color: rgba(255,255,255,0.8); text-decoration: none; margin-bottom: 0.5rem; }
+   .footer-col a:hover { color: [couleur accent]; }
+   .footer-bottom { border-top: 1px solid rgba(255,255,255,0.2); padding-top: 2rem; text-align: center; color: rgba(255,255,255,0.6); }
+
+═══════════════════════════════════════════════════════════════════
+STYLES CSS COMMUNS (À INCLURE DANS <style>)
+═══════════════════════════════════════════════════════════════════
+
+/* Boutons */
+.btn {
+  display: inline-block;
+  padding: 1rem 2.5rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+.btn-primary {
+  background: [couleur accent or];
+  color: [couleur primaire foncé];
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+}
+.btn-secondary {
+  background: transparent;
+  color: white;
+  border: 2px solid white;
+}
+
+/* Sections communes */
+.container { max-width: 1200px; margin: 0 auto; }
+section { padding: 5rem 5%; }
+.section-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 1rem;
+  color: [couleur primaire];
+}
+.section-subtitle {
+  text-align: center;
+  font-size: 1.2rem;
+  color: [couleur secondaire];
+  margin-bottom: 3rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  section { padding: 3rem 5%; }
+  .section-title { font-size: 2rem; }
+  .hero { height: 70vh; }
+  .hero-title { font-size: 2.5rem; }
+  .about-content,
+  .contact-wrapper,
+  .footer-content { grid-template-columns: 1fr; }
+  .services-grid,
+  .reviews-grid,
+  .about-features { grid-template-columns: 1fr; }
+  .hero-buttons { flex-direction: column; }
+}
+
+═══════════════════════════════════════════════════════════════════
+RÈGLES FINALES CRITIQUES
+═══════════════════════════════════════════════════════════════════
+
+✓ Extraire TOUTES les infos de contact de la description (tel, email, adresse, horaires)
+✓ ${data.logoUrl ? `LOGO: Afficher dans header ET hero avec l'URL ${data.logoUrl}` : 'Pas de logo'}
+✓ ${hasPhotos ? `PHOTOS: Toutes les photos ${JSON.stringify(data.photoUrls)} doivent apparaître` : 'Photos Unsplash thématiques uniquement'}
+✓ ${hasReviews ? 'AVIS: Utiliser les vrais avis fournis' : 'Générer 3 avis réalistes'}
+✓ Générer du contenu COMPLET pour chaque section (pas de placeholders vides)
+✓ Style chaleureux de commerce local (PAS corporate/SaaS/startup)
+✓ Tous les liens tel: et mailto: doivent fonctionner
+✓ Animation CSS pure dans le hero (pas de librairie externe)
+✓ Responsive mobile-first
+✓ Code HTML propre, indenté, valide
+✓ Fermer tous les tags: </body></html>
+
+RETOURNER UNIQUEMENT LE HTML COMPLET - PAS de markdown, PAS d'explication, JUSTE le code HTML.`;
 
     const message = await retryWithBackoff(() =>
       client.messages.create({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 8000,
+        max_tokens: 12000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       })
